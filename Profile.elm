@@ -63,7 +63,9 @@ viewProfile user =
     div []
         [ viewProfileHeader user
         , viewProfileInfo user
+        , hr [] []
         , viewProfileInteraction user
+        , hr [] []
         , viewProfileIntro user
         , viewProfileMoments user
         ]
@@ -146,7 +148,19 @@ styleGrayBox =
 
 viewProfileInteraction : UserProfile -> Html a
 viewProfileInteraction user =
-    div [] []
+    div [ style [ ( "display", "flex" ), ( "align-items", "center" ), ( "height", "50px" ) ] ]
+        [ div [ style [ ( "flex", "1" ) ] ] []
+        , div [ style [ ( "flex", "1" ), ( "text-align", "center" ) ] ] [ text "Message" ]
+        , div [ style [ ( "flex", "1" ), ( "text-align", "center" ) ] ]
+            [ text <|
+                if user.following then
+                    "Unfollow"
+                else
+                    "Follow"
+            ]
+        , div [ style [ ( "flex", "1" ), ( "text-align", "center" ) ] ] [ text "Block" ]
+        , div [ style [ ( "flex", "1" ) ] ] []
+        ]
 
 
 viewProfileIntro : UserProfile -> Html a
