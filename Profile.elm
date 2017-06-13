@@ -98,7 +98,50 @@ viewProfileHeader user =
 
 viewProfileInfo : UserProfile -> Html a
 viewProfileInfo user =
-    div [] []
+    div []
+        [ div [ style styleSpacedCenter ]
+            [ text user.name ]
+        , div [ style <| styleSpacedCenter ++ [ ( "color", "#aaaaaa" ) ] ]
+            [ text ("@" ++ user.id) ]
+        , div [ style styleSpacedCenter ]
+            [ span
+                [ style [ ( "background", "#cccccc" ), ( "padding", "4px" ), ( "border-radius", "4px" ) ] ]
+                [ text user.location ]
+            ]
+        , div [ style [ ( "display", "flex" ), ( "align-items", "center" ), ( "margin", "6px auto" ), ( "height", "50px" ) ] ]
+            [ div [ style [ ( "flex", "1" ) ] ] []
+            , div [ style styleGrayBox ] [ text user.nativeLanguage ]
+            , div [ style [ ( "flex", "0.5" ) ] ] []
+            , div [ style styleGrayBox ] [ text ">" ]
+            , div [ style [ ( "flex", "0.5" ) ] ] []
+            , div [ style styleGrayBox ] [ text user.learningLanguage ]
+            , div [ style [ ( "flex", "1" ) ] ] []
+            ]
+        , div [ style [ ( "display", "flex" ) ] ]
+            [ div [ style [ ( "flex", "1" ) ] ] []
+            , div [ style styleGrayBox ] [ text <| "✔: " ++ (toString user.corrections) ]
+            , div [ style [ ( "flex", "1" ) ] ] []
+            , div [ style styleGrayBox ] [ text <| "文: " ++ (toString user.savedWords) ]
+            , div [ style [ ( "flex", "1" ) ] ] []
+            ]
+        ]
+
+
+styleSpacedCenter : List ( String, String )
+styleSpacedCenter =
+    [ ( "text-align", "center" )
+    , ( "margin", "6px" )
+    ]
+
+
+styleGrayBox : List ( String, String )
+styleGrayBox =
+    [ ( "flex", "1" )
+    , ( "background", "#cccccc" )
+    , ( "text-align", "center" )
+    , ( "padding", "10px 5px" )
+    , ( "border-radius", "4px" )
+    ]
 
 
 viewProfileInteraction : UserProfile -> Html a
