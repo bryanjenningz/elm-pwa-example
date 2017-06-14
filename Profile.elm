@@ -67,6 +67,7 @@ viewProfile user =
         , viewProfileInteraction user
         , hr [] []
         , viewProfileIntro user
+        , hr [] []
         , viewProfileMoments user
         ]
 
@@ -165,12 +166,39 @@ viewProfileInteraction user =
 
 viewProfileIntro : UserProfile -> Html a
 viewProfileIntro user =
-    div [] []
+    div []
+        [ div [ style [ ( "color", "#888888" ) ] ] [ text "Self-introduction" ]
+        , br [] []
+        , div [] [ text user.intro ]
+        , br [] []
+        , div [] <|
+            List.map
+                (\hobby -> span [ style styleGrayBox ] [ text hobby ])
+                user.hobbies
+        , br [] []
+        ]
 
 
 viewProfileMoments : UserProfile -> Html a
 viewProfileMoments user =
-    div [] []
+    case user.moments of
+        [] ->
+            div [] [ text "No moments" ]
+
+        moments ->
+            div [] <|
+                List.map
+                    (\moment ->
+                        div []
+                            [ div [] <|
+                                List.map (\p -> img [ src p ] []) moment.pictures
+                            , div [] [ text moment.text ]
+                            , div [] [ text (toString moment.likes) ]
+                            , div [] <|
+                                List.map (\c -> div [] [ text c ]) moment.comments
+                            ]
+                    )
+                    moments
 
 
 main : Html a
