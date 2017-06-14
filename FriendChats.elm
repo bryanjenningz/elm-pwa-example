@@ -40,14 +40,14 @@ viewFriendChats friendChats =
     div [] <|
         List.map
             (\chat ->
-                div [ class "chat-preview-container" ]
-                    [ div [ class "chat-preview-picture-container" ]
-                        [ img [ src chat.picture, class "chat-preview-picture" ] [] ]
-                    , div [ class "chat-preview-message-container" ]
+                div [ style [ ( "display", "flex" ) ] ]
+                    [ div [ style [ ( "flex", "1" ) ] ]
+                        [ img [ style [ ( "width", "100%" ), ( "border-radius", "50%" ) ], src chat.picture ] [] ]
+                    , div [ style [ ( "flex", "3" ) ] ]
                         [ div [] [ text chat.name ]
                         , div [] [ text chat.lastMessage.message ]
                         ]
-                    , div [ class "chat-preview-time-container" ]
+                    , div [ style [ ( "flex", "1" ) ] ]
                         [ div [] [ text (toString chat.unreadMessages) ]
                         , viewDate chat.lastMessage.date
                         ]
@@ -59,7 +59,7 @@ viewFriendChats friendChats =
 viewDate : Date -> Html msg
 viewDate { year, month, day } =
     div []
-        [ text (toString year ++ toString month ++ toString day) ]
+        [ text <| String.join "/" <| List.map toString [ year, month, day ] ]
 
 
 main : Html msg
