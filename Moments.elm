@@ -50,7 +50,7 @@ viewMoments moments =
             (\moment ->
                 div []
                     [ -- moment header
-                      div [ style [ ( "display", "flex" ), ( "height", "200px" ) ] ]
+                      div [ style [ ( "display", "flex" ) ] ]
                         [ div [ style [ ( "flex", "1" ) ] ]
                             [ img
                                 [ src moment.profilePicture
