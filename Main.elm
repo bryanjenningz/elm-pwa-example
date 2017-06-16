@@ -275,10 +275,10 @@ viewProfile user =
                                                 ]
                                             ]
                                         ]
-                                    , div [ class "row" ]
+                                    , div [ class "row mt-2" ]
                                         [ div [ class "offset-2 col-10" ]
                                             [ div [] [ text moment.text ]
-                                            , div [ class "row" ]
+                                            , div [ class "row mt-2" ]
                                                 [ div [ class "col-3 text-muted" ]
                                                     [ text <| "❤ " ++ toString moment.likes ]
                                                 , div [ class "col-3 text-muted" ]
@@ -287,7 +287,7 @@ viewProfile user =
                                                             ++ (toString <| List.length moment.comments)
                                                     ]
                                                 ]
-                                            , div [] <|
+                                            , div [ class "mt-2" ] <|
                                                 List.map
                                                     (\comment ->
                                                         div []
