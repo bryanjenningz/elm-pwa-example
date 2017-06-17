@@ -207,15 +207,18 @@ viewProfile user =
                 [ div [ class "row card-block" ]
                     [ div [ class "offset-1 col-2" ]
                         [ div [ class "text-center text-primary" ] [ text "💬" ]
-                        , div [ class "text-center text-muted" ] [ text "Message" ]
+                        , div [ class "text-center text-muted" ]
+                            [ text "Message" ]
                         ]
                     , div [ class "offset-1 col-2" ]
                         [ div [ class "text-center text-primary" ] [ text "⊕" ]
-                        , div [ class "text-center text-muted" ] [ text "Follow" ]
+                        , div [ class "text-center text-muted" ]
+                            [ text "Follow" ]
                         ]
                     , div [ class "offset-1 col-2" ]
                         [ div [ class "text-center text-primary" ] [ text "⚐" ]
-                        , div [ class "text-center text-muted" ] [ text "Block/Report" ]
+                        , div [ class "text-center text-muted" ]
+                            [ text "Block/Report" ]
                         ]
                     ]
                 ]
@@ -254,59 +257,65 @@ viewProfile user =
                             ]
                         ]
                     , div [ class "mt-3" ]
-                        (List.map
-                            (\moment ->
-                                div []
-                                    [ div [ class "row" ]
-                                        [ div [ class "col-2" ]
-                                            [ img [ stylePicture, src user.picture ] [] ]
-                                        , div [ class "col-10" ]
-                                            [ div [] [ text user.name ]
-                                            , div [ class "row" ]
-                                                [ div [ class "col-3" ]
-                                                    [ div [] [ text user.native.shortName ]
-                                                    , viewLanguageLevel user.native.level
-                                                    ]
-                                                , div [ class "col-1 mr-4" ] [ text " > " ]
-                                                , div [ class "col-3" ]
-                                                    [ div [] [ text user.learning.shortName ]
-                                                    , viewLanguageLevel user.learning.level
-                                                    ]
-                                                ]
-                                            ]
-                                        ]
-                                    , div [ class "row mt-2" ]
-                                        [ div [ class "offset-2 col-10" ]
-                                            [ div [] [ text moment.text ]
-                                            , div [ class "row mt-2" ]
-                                                [ div [ class "col-3 text-muted" ]
-                                                    [ text <| "❤ " ++ toString moment.likes ]
-                                                , div [ class "col-3 text-muted" ]
-                                                    [ text <|
-                                                        "💬 "
-                                                            ++ (toString <| List.length moment.comments)
-                                                    ]
-                                                ]
-                                            , div [ class "mt-2" ] <|
-                                                List.map
-                                                    (\comment ->
-                                                        div []
-                                                            [ span [ class "text-primary" ]
-                                                                [ text (comment.name ++ " ") ]
-                                                            , text comment.text
-                                                            ]
-                                                    )
-                                                    moment.comments
-                                            ]
-                                        ]
-                                    , hr [] []
-                                    ]
+                        (List.map2
+                            viewMoment
+                            (List.range 1 (List.length user.moments)
+                                |> List.map (\_ -> user)
                             )
                             user.moments
                         )
                     ]
                 ]
             ]
+        ]
+
+
+viewMoment : User -> Moment -> Html msg
+viewMoment user moment =
+    div []
+        [ div [ class "row" ]
+            [ div [ class "col-2" ]
+                [ img [ stylePicture, src user.picture ] [] ]
+            , div [ class "col-10" ]
+                [ div [] [ text user.name ]
+                , div [ class "row" ]
+                    [ div [ class "col-3" ]
+                        [ div [] [ text user.native.shortName ]
+                        , viewLanguageLevel user.native.level
+                        ]
+                    , div [ class "col-1 mr-4" ] [ text " > " ]
+                    , div [ class "col-3" ]
+                        [ div [] [ text user.learning.shortName ]
+                        , viewLanguageLevel user.learning.level
+                        ]
+                    ]
+                ]
+            ]
+        , div [ class "row mt-2" ]
+            [ div [ class "offset-2 col-10" ]
+                [ div [] [ text moment.text ]
+                , div [ class "row mt-2" ]
+                    [ div [ class "col-3 text-muted" ]
+                        [ text <| "❤ " ++ toString moment.likes ]
+                    , div [ class "col-3 text-muted" ]
+                        [ text <|
+                            "💬 "
+                                ++ (toString <| List.length moment.comments)
+                        ]
+                    ]
+                , div [ class "mt-2" ] <|
+                    List.map
+                        (\comment ->
+                            div []
+                                [ span [ class "text-primary" ]
+                                    [ text (comment.name ++ " ") ]
+                                , text comment.text
+                                ]
+                        )
+                        moment.comments
+                ]
+            ]
+        , hr [] []
         ]
 
 
