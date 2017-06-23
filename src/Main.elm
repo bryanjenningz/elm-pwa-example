@@ -353,6 +353,78 @@ stylePicture =
     style [ ( "width", "100%" ), ( "border-radius", "50%" ) ]
 
 
+
+-- Talks
+
+
+type alias Message =
+    { user : User
+    , time : Int
+    , text : String
+    , read : Bool
+    }
+
+
+type alias Talk =
+    { user : User
+    , messages : List Message
+    }
+
+
+viewTalks : List Talk -> Html msg
+viewTalks talks =
+    div [ class "row" ]
+        [ div [ class "col-12 offset-md-3 col-md-6 mt-4" ] <|
+            List.map
+                (\talk ->
+                    div [ class "row" ]
+                        [ div [ class "col-2" ]
+                            [ img [ stylePicture, src mockPicture ] [] ]
+                        , div [ class "col-8" ]
+                            [ div [] [ text talk.user.name ]
+                            , div []
+                                [ text
+                                    (talk.messages
+                                        |> List.head
+                                        |> Maybe.map .text
+                                        |> Maybe.withDefault ""
+                                    )
+                                ]
+                            ]
+                        , div [ class "col-2" ]
+                            [ div []
+                                [ text (toString talk.user.lastLogin ++ "d") ]
+                            , case
+                                (talk.messages
+                                    |> List.filter (not << .read)
+                                    |> List.length
+                                )
+                              of
+                                0 ->
+                                    div [] [ text "↩" ]
+
+                                unreadCount ->
+                                    div [ class "badge badge-pill badge-danger" ]
+                                        [ text (toString unreadCount) ]
+                            , div [] []
+                            ]
+                        ]
+                )
+                talks
+        ]
+
+
+mockMessage : Message
+mockMessage =
+    Message mockUser 10000000 "Hello" True
+
+
+mockTalks : List Talk
+mockTalks =
+    List.repeat 10 (Talk mockUser (List.repeat 10 mockMessage))
+
+
 main : Html msg
 main =
-    viewProfile mockUser
+    -- viewProfile mockUser
+    viewTalks mockTalks
