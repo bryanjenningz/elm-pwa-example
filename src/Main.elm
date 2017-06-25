@@ -411,6 +411,7 @@ viewTalks talks =
                         ]
                 )
                 talks
+        , div [ class "pt-4 pb-4 mt-4 text-center" ] [ text "." ]
         ]
 
 
@@ -435,6 +436,38 @@ viewTalk talk =
         ]
 
 
+viewBottomMenu : Html msg
+viewBottomMenu =
+    div [ class "row col-12 col-md-6 offset-md-3 pt-2", styleBottomMenu ]
+        [ div [ class "col-3 text-muted text-center" ]
+            [ div [] [ text "💬" ]
+            , div [] [ text "Talks" ]
+            ]
+        , div [ class "col-3 text-muted text-center" ]
+            [ div [] [ text "☰" ]
+            , div [] [ text "Moments" ]
+            ]
+        , div [ class "col-3 text-muted text-center" ]
+            [ div [] [ text "🔍" ]
+            , div [] [ text "Search" ]
+            ]
+        , div [ class "col-3 text-muted text-center" ]
+            [ div [] [ text "👤" ]
+            , div [] [ text "Profile" ]
+            ]
+        ]
+
+
+styleBottomMenu : Attribute msg
+styleBottomMenu =
+    style
+        [ ( "position", "fixed" )
+        , ( "bottom", "0" )
+        , ( "background", "white" )
+        , ( "box-shadow", "0px 0px 10px 0px #888888" )
+        ]
+
+
 mockMessage : Message
 mockMessage =
     Message mockUser 10000000 "Hello" True
@@ -447,5 +480,7 @@ mockTalks =
 
 main : Html msg
 main =
-    -- viewProfile mockUser
-    viewTalks mockTalks
+    div []
+        [ viewTalks mockTalks
+        , viewBottomMenu
+        ]
