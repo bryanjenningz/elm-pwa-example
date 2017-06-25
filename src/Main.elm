@@ -442,21 +442,21 @@ viewBottomMenu route =
     div [ class "row col-12 col-md-6 offset-md-3 pt-2", styleBottomMenu ]
         [ div
             [ class "col-3 text-muted text-center"
-            , onClick <| ChangeRoute <| RouteTalks
+            , onClick <| ChangeRoute RouteTalks
             ]
             [ div [] [ text "💬" ]
             , div [] [ text "Talks" ]
             ]
         , div
             [ class "col-3 text-muted text-center"
-            , onClick <| ChangeRoute <| RouteMoments
+            , onClick <| ChangeRoute RouteMoments
             ]
             [ div [] [ text "☰" ]
             , div [] [ text "Moments" ]
             ]
         , div
             [ class "col-3 text-muted text-center"
-            , onClick <| ChangeRoute <| RouteSearch
+            , onClick <| ChangeRoute RouteSearch
             ]
             [ div [] [ text "🔍" ]
             , div [] [ text "Search" ]
@@ -493,7 +493,7 @@ mockTalks =
 
 viewSearch : List User -> Html Msg
 viewSearch users =
-    div []
+    div [ class "row col-12 col-md-6 offset-md-3 pt-2" ]
         (List.map
             (\user ->
                 div [ class "row mb-4" ]
@@ -535,7 +535,7 @@ view model =
 
         RouteMoments ->
             div []
-                [ div []
+                [ div [ class "row col-12 col-md-6 offset-md-3 pt-2" ]
                     (List.map2
                         viewMoment
                         (List.repeat (List.length mockMoments) mockUser)
