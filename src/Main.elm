@@ -1,7 +1,7 @@
 module Main exposing (..)
 
 import Html exposing (..)
-import Html.Attributes exposing (class, src, style, placeholder)
+import Html.Attributes exposing (class, classList, src, style, placeholder)
 import Html.Events exposing (..)
 
 
@@ -439,36 +439,70 @@ viewTalk talk =
 
 viewBottomMenu : Route -> Html Msg
 viewBottomMenu route =
-    div [ class "row col-12 col-md-6 offset-md-3 pt-2", styleBottomMenu ]
-        [ div
-            [ class "col-3 text-muted text-center"
-            , onClick <| ChangeRoute RouteTalks
+    let
+        routeIndex =
+            case route of
+                RouteTalks ->
+                    Just 0
+
+                RouteMoments ->
+                    Just 1
+
+                RouteSearch ->
+                    Just 2
+
+                RouteProfile user ->
+                    Just 3
+
+                _ ->
+                    Nothing
+    in
+        div [ class "row col-12 col-md-6 offset-md-3 pt-2", styleBottomMenu ]
+            [ div
+                [ class "col-3 text-center"
+                , classList
+                    [ ( "text-primary", routeIndex == Just 0 )
+                    , ( "text-muted", routeIndex /= Just 0 )
+                    ]
+                , onClick <| ChangeRoute RouteTalks
+                ]
+                [ div [] [ text "💬" ]
+                , div [] [ text "Talks" ]
+                ]
+            , div
+                [ class "col-3 text-center"
+                , classList
+                    [ ( "text-primary", routeIndex == Just 1 )
+                    , ( "text-muted", routeIndex /= Just 1 )
+                    ]
+                , onClick <| ChangeRoute RouteMoments
+                ]
+                [ div [] [ text "☰" ]
+                , div [] [ text "Moments" ]
+                ]
+            , div
+                [ class "col-3 text-center"
+                , classList
+                    [ ( "text-primary", routeIndex == Just 2 )
+                    , ( "text-muted", routeIndex /= Just 2 )
+                    ]
+                , onClick <| ChangeRoute RouteSearch
+                ]
+                [ div [] [ text "🔍" ]
+                , div [] [ text "Search" ]
+                ]
+            , div
+                [ class "col-3 text-center"
+                , classList
+                    [ ( "text-primary", routeIndex == Just 3 )
+                    , ( "text-muted", routeIndex /= Just 3 )
+                    ]
+                , onClick <| ChangeRoute <| RouteProfile mockUser
+                ]
+                [ div [] [ text "👤" ]
+                , div [] [ text "Profile" ]
+                ]
             ]
-            [ div [] [ text "💬" ]
-            , div [] [ text "Talks" ]
-            ]
-        , div
-            [ class "col-3 text-muted text-center"
-            , onClick <| ChangeRoute RouteMoments
-            ]
-            [ div [] [ text "☰" ]
-            , div [] [ text "Moments" ]
-            ]
-        , div
-            [ class "col-3 text-muted text-center"
-            , onClick <| ChangeRoute RouteSearch
-            ]
-            [ div [] [ text "🔍" ]
-            , div [] [ text "Search" ]
-            ]
-        , div
-            [ class "col-3 text-muted text-center"
-            , onClick <| ChangeRoute <| RouteProfile mockUser
-            ]
-            [ div [] [ text "👤" ]
-            , div [] [ text "Profile" ]
-            ]
-        ]
 
 
 styleBottomMenu : Attribute msg
