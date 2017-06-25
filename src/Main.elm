@@ -2,6 +2,7 @@ module Main exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (class, src, style, placeholder)
+import Html.Events exposing (..)
 
 
 mockMoment : Moment
@@ -436,22 +437,34 @@ viewTalk talk =
         ]
 
 
-viewBottomMenu : Html msg
-viewBottomMenu =
+viewBottomMenu : Route -> Html Msg
+viewBottomMenu route =
     div [ class "row col-12 col-md-6 offset-md-3 pt-2", styleBottomMenu ]
-        [ div [ class "col-3 text-muted text-center" ]
+        [ div
+            [ class "col-3 text-muted text-center"
+            , onClick <| ChangeRoute <| RouteTalks
+            ]
             [ div [] [ text "💬" ]
             , div [] [ text "Talks" ]
             ]
-        , div [ class "col-3 text-muted text-center" ]
+        , div
+            [ class "col-3 text-muted text-center"
+            , onClick <| ChangeRoute <| RouteMoments
+            ]
             [ div [] [ text "☰" ]
             , div [] [ text "Moments" ]
             ]
-        , div [ class "col-3 text-muted text-center" ]
+        , div
+            [ class "col-3 text-muted text-center"
+            , onClick <| ChangeRoute <| RouteSearch
+            ]
             [ div [] [ text "🔍" ]
             , div [] [ text "Search" ]
             ]
-        , div [ class "col-3 text-muted text-center" ]
+        , div
+            [ class "col-3 text-muted text-center"
+            , onClick <| ChangeRoute <| RouteProfile mockUser
+            ]
             [ div [] [ text "👤" ]
             , div [] [ text "Profile" ]
             ]
@@ -515,29 +528,40 @@ view : Model -> Html Msg
 view model =
     case model.route of
         RouteTalks ->
-            div [] [ viewTalks mockTalks, viewBottomMenu ]
+            div [] [ viewTalks mockTalks, viewBottomMenu model.route ]
 
         RouteTalk talk ->
-            div [] [ viewTalk talk ]
+            div [] [ viewTalk talk, viewBottomMenu model.route ]
 
         RouteMoments ->
             div []
-                (List.map2
-                    viewMoment
-                    (List.repeat (List.length mockMoments) mockUser)
-                    mockMoments
-                )
+                [ div []
+                    (List.map2
+                        viewMoment
+                        (List.repeat (List.length mockMoments) mockUser)
+                        mockMoments
+                    )
+                , viewBottomMenu model.route
+                ]
 
         RouteSearch ->
-            div [] [ viewSearch (List.repeat 10 mockUser) ]
+            div []
+                [ viewSearch (List.repeat 10 mockUser)
+                , viewBottomMenu model.route
+                ]
 
         RouteProfile user ->
-            div [] [ viewProfile user ]
+            div []
+                [ viewProfile user
+                , viewBottomMenu model.route
+                ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    ( model, Cmd.none )
+    case msg of
+        ChangeRoute route ->
+            ( { model | route = route }, Cmd.none )
 
 
 type Route
