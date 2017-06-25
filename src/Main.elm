@@ -478,9 +478,90 @@ mockTalks =
     List.repeat 10 (Talk mockUser (List.repeat 10 mockMessage))
 
 
-main : Html msg
-main =
+viewSearch : List User -> Html Msg
+viewSearch users =
     div []
-        [ viewTalks mockTalks
-        , viewBottomMenu
-        ]
+        (List.map
+            (\user ->
+                div [ class "row mb-4" ]
+                    [ div [ class "col-2" ]
+                        [ img [ stylePicture, src mockPicture ] [] ]
+                    , div [ class "col-8" ]
+                        [ div [] [ text user.name ]
+                        , div [ class "row" ]
+                            [ div [ class "col-3" ]
+                                [ div [] [ text user.native.shortName ]
+                                , viewLanguageLevel user.native.level
+                                ]
+                            , div [ class "col-1 mr-4" ] [ text " > " ]
+                            , div [ class "col-3" ]
+                                [ div [] [ text user.learning.shortName ]
+                                , viewLanguageLevel user.learning.level
+                                ]
+                            ]
+                        ]
+                    , div [ class "col-2" ]
+                        [ div []
+                            [ text (toString user.lastLogin ++ "d") ]
+                        , div [] [ text "☰" ]
+                        ]
+                    ]
+            )
+            users
+        )
+
+
+view : Model -> Html Msg
+view model =
+    case model.route of
+        RouteTalks ->
+            div [] [ viewTalks mockTalks, viewBottomMenu ]
+
+        RouteTalk talk ->
+            div [] [ viewTalk talk ]
+
+        RouteMoments ->
+            div []
+                (List.map2
+                    viewMoment
+                    (List.repeat (List.length mockMoments) mockUser)
+                    mockMoments
+                )
+
+        RouteSearch ->
+            div [] [ viewSearch (List.repeat 10 mockUser) ]
+
+        RouteProfile user ->
+            div [] [ viewProfile user ]
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    ( model, Cmd.none )
+
+
+type Route
+    = RouteTalks
+    | RouteTalk Talk
+    | RouteMoments
+    | RouteSearch
+    | RouteProfile User
+
+
+type Msg
+    = ChangeRoute Route
+
+
+type alias Model =
+    { route : Route
+    }
+
+
+main : Program Never Model Msg
+main =
+    program
+        { init = ( Model RouteTalks, Cmd.none )
+        , view = view
+        , update = update
+        , subscriptions = (\_ -> Sub.none)
+        }
