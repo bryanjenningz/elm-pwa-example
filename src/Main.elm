@@ -1,7 +1,7 @@
 module Main exposing (..)
 
 import Html exposing (..)
-import Html.Attributes exposing (class, src, style)
+import Html.Attributes exposing (class, src, style, placeholder)
 
 
 mockMoment : Moment
@@ -377,7 +377,7 @@ viewTalks talks =
         [ div [ class "col-12 offset-md-3 col-md-6 mt-4" ] <|
             List.map
                 (\talk ->
-                    div [ class "row" ]
+                    div [ class "row mb-4" ]
                         [ div [ class "col-2" ]
                             [ img [ stylePicture, src mockPicture ] [] ]
                         , div [ class "col-8" ]
@@ -411,6 +411,27 @@ viewTalks talks =
                         ]
                 )
                 talks
+        ]
+
+
+viewTalk : Talk -> Html msg
+viewTalk talk =
+    div []
+        [ div []
+            (List.map
+                (\message ->
+                    div [ class "row" ]
+                        [ div [ class "col-3" ] [ text message.text ]
+                        , div [ class "col-9" ] [ text message.user.name ]
+                        ]
+                )
+                talk.messages
+            )
+        , div []
+            [ input
+                [ class "form-control", placeholder "Type a message..." ]
+                []
+            ]
         ]
 
 
