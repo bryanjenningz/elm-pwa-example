@@ -358,16 +358,22 @@ type alias Talk =
     }
 
 
-viewTalks : List Talk -> Html msg
+viewTalks : List Talk -> Html Msg
 viewTalks talks =
     div [ class "row" ]
         [ div [ class "col-12 offset-md-3 col-md-6 mt-4" ] <|
             List.map
                 (\talk ->
                     div [ class "row mb-4" ]
-                        [ div [ class "col-2" ]
+                        [ div
+                            [ class "col-2"
+                            , onClick <| ChangeRoute <| RouteProfile talk.user
+                            ]
                             [ img [ stylePicture, src mockPicture ] [] ]
-                        , div [ class "col-8" ]
+                        , div
+                            [ class "col-8"
+                            , onClick <| ChangeRoute <| RouteTalk talk
+                            ]
                             [ div [] [ text talk.user.name ]
                             , div []
                                 [ text
@@ -378,7 +384,10 @@ viewTalks talks =
                                     )
                                 ]
                             ]
-                        , div [ class "col-2" ]
+                        , div
+                            [ class "col-2"
+                            , onClick <| ChangeRoute <| RouteTalk talk
+                            ]
                             [ div []
                                 [ text (toString talk.user.lastLogin ++ "d") ]
                             , case
