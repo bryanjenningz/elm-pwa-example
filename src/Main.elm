@@ -3,125 +3,8 @@ module Main exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (class, classList, src, style, placeholder)
 import Html.Events exposing (..)
-
-
-mockMoment : Moment
-mockMoment =
-    { userId = "id_example123"
-    , pictures = mockPictures
-    , text =
-        List.range 1 10
-            |> List.map (always "test moment ")
-            |> List.foldl (++) ""
-    , likes = 2
-    , comments = mockComments
-    }
-
-
-mockMoments : List Moment
-mockMoments =
-    List.repeat 10 mockMoment
-
-
-mockPicture : String
-mockPicture =
-    "http://s3.amazonaws.com/37assets/svn/765-default-avatar.png"
-
-
-mockPictures : List String
-mockPictures =
-    List.repeat 9 mockPicture
-
-
-mockComments : List Comment
-mockComments =
-    List.range 1 3
-        |> List.map
-            (\i ->
-                if i % 2 == 0 then
-                    Comment
-                        "id_example123"
-                        "example name"
-                        "test reply 123!!!"
-                else
-                    Comment
-                        "id_abe123"
-                        "abe name"
-                        "this is just a test reply, I hope this reply is not too long"
-            )
-
-
-type alias Comment =
-    { userId : String
-    , name : String
-    , text : String
-    }
-
-
-type alias Moment =
-    { userId : String
-    , pictures : List String
-    , text : String
-    , likes : Int
-    , comments : List Comment
-    }
-
-
-type alias Language =
-    { shortName : String
-    , name : String
-    , level : Int
-    }
-
-
-type alias User =
-    { id : String
-    , name : String
-    , email : String
-    , age : Int
-    , isMan : Bool
-    , lastLogin : Int
-    , location : String
-    , localTime : String
-    , learning : Language
-    , native : Language
-    , corrections : Int
-    , savedWords : Int
-    , audioLookups : Int
-    , translationLookups : Int
-    , bookmarks : Int
-    , intro : String
-    , interests : List String
-    , picture : String
-    , moments : List Moment
-    }
-
-
-mockUser : User
-mockUser =
-    { id = "id_example123"
-    , name = "example name"
-    , email = "example@example.com"
-    , age = 99
-    , isMan = True
-    , lastLogin = 20
-    , location = "Pleasantville, Pleasant Country"
-    , localTime = "7:38 PM"
-    , learning = Language "EN" "English" 2
-    , native = Language "CN" "中文" 5
-    , corrections = 22
-    , savedWords = 34
-    , audioLookups = 5
-    , translationLookups = 2
-    , bookmarks = 0
-    , intro =
-        List.range 1 10
-            |> List.map (\_ -> "this is a test intro")
-            |> String.join ", "
-    , interests = [ "Music", "Soccer", "Movies" ]
-    , picture = mockPicture
-    , moments = mockMoments
-    }
+import Data exposing (Moment, User, Language, Talk, Message)
+import MockData exposing (mockMoment, mockPicture, mockUser, mockMoments, mockTalks)
 
 
 viewProfile : User -> Html Msg
@@ -351,20 +234,6 @@ stylePicture =
     style [ ( "width", "100%" ), ( "border-radius", "50%" ) ]
 
 
-type alias Message =
-    { user : User
-    , time : Int
-    , text : String
-    , read : Bool
-    }
-
-
-type alias Talk =
-    { user : User
-    , messages : List Message
-    }
-
-
 viewTalks : List Talk -> Html Msg
 viewTalks talks =
     div [ class "row" ]
@@ -515,16 +384,6 @@ styleBottomMenu =
         , ( "background", "white" )
         , ( "box-shadow", "0px 0px 10px 0px #888888" )
         ]
-
-
-mockMessage : Message
-mockMessage =
-    Message mockUser 10000000 "Hello" True
-
-
-mockTalks : List Talk
-mockTalks =
-    List.repeat 10 (Talk mockUser (List.repeat 10 mockMessage))
 
 
 viewSearch : List User -> Html Msg
