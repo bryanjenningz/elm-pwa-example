@@ -522,35 +522,37 @@ mockTalks =
 
 viewSearch : List User -> Html Msg
 viewSearch users =
-    div [ class "row col-12 col-md-6 offset-md-3 pt-2" ]
-        (List.map
-            (\user ->
-                div [ class "row mb-4" ]
-                    [ div [ class "col-2" ]
-                        [ img [ stylePicture, src mockPicture ] [] ]
-                    , div [ class "col-8" ]
-                        [ div [] [ text user.name ]
-                        , div [ class "row" ]
-                            [ div [ class "col-3" ]
-                                [ div [] [ text user.native.shortName ]
-                                , viewLanguageLevel user.native.level
-                                ]
-                            , div [ class "col-1 mr-4" ] [ text " > " ]
-                            , div [ class "col-3" ]
-                                [ div [] [ text user.learning.shortName ]
-                                , viewLanguageLevel user.learning.level
+    div [ class "row" ]
+        [ div [ class "col-12 col-md-6 offset-md-3 pt-2" ]
+            (List.map
+                (\user ->
+                    div [ class "row mb-4" ]
+                        [ div [ class "col-2" ]
+                            [ img [ stylePicture, src mockPicture ] [] ]
+                        , div [ class "col-8" ]
+                            [ div [] [ text user.name ]
+                            , div [ class "row" ]
+                                [ div [ class "col-3" ]
+                                    [ div [] [ text user.native.shortName ]
+                                    , viewLanguageLevel user.native.level
+                                    ]
+                                , div [ class "col-1 mr-4" ] [ text " > " ]
+                                , div [ class "col-3" ]
+                                    [ div [] [ text user.learning.shortName ]
+                                    , viewLanguageLevel user.learning.level
+                                    ]
                                 ]
                             ]
+                        , div [ class "col-2" ]
+                            [ div []
+                                [ text (toString user.lastLogin ++ "d") ]
+                            , div [] [ text "☰" ]
+                            ]
                         ]
-                    , div [ class "col-2" ]
-                        [ div []
-                            [ text (toString user.lastLogin ++ "d") ]
-                        , div [] [ text "☰" ]
-                        ]
-                    ]
+                )
+                users
             )
-            users
-        )
+        ]
 
 
 view : Model -> Html Msg
@@ -564,12 +566,14 @@ view model =
 
         RouteMoments ->
             div []
-                [ div [ class "row col-12 col-md-6 offset-md-3 pt-2" ]
-                    (List.map2
-                        viewMoment
-                        (List.repeat (List.length mockMoments) mockUser)
-                        mockMoments
-                    )
+                [ div [ class "row" ]
+                    [ div [ class "col-12 col-md-6 offset-md-3 pt-2" ]
+                        (List.map2
+                            viewMoment
+                            (List.repeat (List.length mockMoments) mockUser)
+                            mockMoments
+                        )
+                    ]
                 , viewBottomMenu model.route
                 ]
 
