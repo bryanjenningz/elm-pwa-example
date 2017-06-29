@@ -20,8 +20,7 @@ mockMoment =
 
 mockMoments : List Moment
 mockMoments =
-    List.range 1 10
-        |> List.map (\_ -> mockMoment)
+    List.repeat 10 mockMoment
 
 
 mockPicture : String
@@ -31,8 +30,7 @@ mockPicture =
 
 mockPictures : List String
 mockPictures =
-    List.range 1 9
-        |> List.map (always mockPicture)
+    List.repeat 9 mockPicture
 
 
 mockComments : List Comment
@@ -51,14 +49,6 @@ mockComments =
                         "abe name"
                         "this is just a test reply, I hope this reply is not too long"
             )
-
-
-mockComment : Comment
-mockComment =
-    { userId = "id_example123"
-    , name = "example name"
-    , text = "test replay"
-    }
 
 
 type alias Comment =
@@ -352,10 +342,6 @@ styleHeader =
 stylePicture : Attribute msg
 stylePicture =
     style [ ( "width", "100%" ), ( "border-radius", "50%" ) ]
-
-
-
--- Talks
 
 
 type alias Message =
