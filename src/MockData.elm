@@ -13,9 +13,8 @@ mockMoment =
     { userId = "id_example123"
     , pictures = mockPictures
     , text =
-        List.range 1 10
-            |> List.map (always "test moment ")
-            |> List.foldl (++) ""
+        List.repeat 10 "test moment "
+            |> String.join ""
     , likes = 2
     , comments = mockComments
     }
@@ -67,8 +66,7 @@ mockUser =
     , translationLookups = 2
     , bookmarks = 0
     , intro =
-        List.range 1 10
-            |> List.map (\_ -> "this is a test intro")
+        List.repeat 10 "this is a test intro"
             |> String.join ", "
     , interests = [ "Music", "Soccer", "Movies" ]
     , picture = mockPicture

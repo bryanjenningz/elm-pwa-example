@@ -1,0 +1,24 @@
+{
+  "name": "elm-pwa-example",
+  "version": "1.0.0",
+  "description": "A progressive web app written in Elm",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bryanjenningz/elm-pwa-example.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bryanjenningz/elm-pwa-example/issues"
+  },
+  "homepage": "https://github.com/bryanjenningz/elm-pwa-example#readme",
+  "dependencies": {
+    "express": "^4.15.3"
+  }
+}
