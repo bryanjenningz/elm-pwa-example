@@ -124,7 +124,7 @@ mockUser =
     }
 
 
-viewProfile : User -> Html msg
+viewProfile : User -> Html Msg
 viewProfile user =
     div [ class "row", style [ ( "position", "relative" ) ] ]
         [ div [ class "bg-info", styleHeader ] []
@@ -261,12 +261,19 @@ viewProfile user =
         ]
 
 
-viewMoment : User -> Moment -> Html msg
+viewMoment : User -> Moment -> Html Msg
 viewMoment user moment =
     div []
         [ div [ class "row" ]
-            [ div [ class "col-2" ]
-                [ img [ stylePicture, src user.picture ] [] ]
+            [ div
+                [ class "col-2" ]
+                [ img
+                    [ stylePicture
+                    , src user.picture
+                    , onClick <| ChangeRoute <| RouteProfile user
+                    ]
+                    []
+                ]
             , div [ class "col-10" ]
                 [ div [] [ text user.name ]
                 , div [ class "row" ]
@@ -526,7 +533,10 @@ viewSearch users =
         [ div [ class "col-12 col-md-6 offset-md-3 pt-2" ]
             (List.map
                 (\user ->
-                    div [ class "row mb-4" ]
+                    div
+                        [ class "row mb-4"
+                        , onClick <| ChangeRoute <| RouteProfile user
+                        ]
                         [ div [ class "col-2" ]
                             [ img [ stylePicture, src mockPicture ] [] ]
                         , div [ class "col-8" ]
