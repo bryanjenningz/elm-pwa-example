@@ -3,6 +3,7 @@ module Main exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (class, classList, src, style, placeholder)
 import Html.Events exposing (..)
+import Dict exposing (Dict)
 import Data exposing (Moment, User, Language, Talk, Message)
 import MockData exposing (mockMoment, mockPicture, mockUser, mockMoments, mockTalks)
 
@@ -428,7 +429,7 @@ view : Model -> Html Msg
 view model =
     case model.route of
         RouteTalks ->
-            div [] [ viewTalks mockTalks, viewBottomMenu model.route ]
+            div [] [ viewTalks model.talks, viewBottomMenu model.route ]
 
         RouteTalk talk ->
             div [] [ viewTalk talk, viewBottomMenu model.route ]
@@ -437,10 +438,15 @@ view model =
             div []
                 [ div [ class "row" ]
                     [ div [ class "col-12 col-md-6 offset-md-3 pt-2" ]
-                        (List.map2
-                            viewMoment
-                            (List.repeat (List.length mockMoments) mockUser)
-                            mockMoments
+                        (List.map
+                            (\moment ->
+                                viewMoment
+                                    (Dict.get moment.userId model.userById
+                                        |> Maybe.withDefault mockUser
+                                    )
+                                    moment
+                            )
+                            model.moments
                         )
                     ]
                 , viewBottomMenu model.route
@@ -448,7 +454,7 @@ view model =
 
         RouteSearch ->
             div []
-                [ viewSearch (List.repeat 10 mockUser)
+                [ viewSearch model.searchUsers
                 , viewBottomMenu model.route
                 ]
 
@@ -480,13 +486,25 @@ type Msg
 
 type alias Model =
     { route : Route
+    , talks : List Talk
+    , moments : List Moment
+    , userById : Dict String User
+    , searchUsers : List User
     }
 
 
 main : Program Never Model Msg
 main =
     program
-        { init = ( Model RouteTalks, Cmd.none )
+        { init =
+            ( Model
+                RouteTalks
+                mockTalks
+                mockMoments
+                Dict.empty
+                (List.repeat 10 mockUser)
+            , Cmd.none
+            )
         , view = view
         , update = update
         , subscriptions = (\_ -> Sub.none)
