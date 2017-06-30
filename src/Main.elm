@@ -503,8 +503,8 @@ type alias Model =
     , user : User
     , talks : List Talk
     , moments : List Moment
-    , userById : Dict String User
     , searchUsers : List User
+    , userById : Dict String User
     }
 
 
@@ -517,8 +517,8 @@ main =
                 mockUser
                 mockTalks
                 mockMoments
-                Dict.empty
                 (List.repeat 10 mockUser)
+                Dict.empty
             , Cmd.none
             )
         , view = view
