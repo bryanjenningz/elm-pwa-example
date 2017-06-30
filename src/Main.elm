@@ -5,10 +5,9 @@ import Html.Attributes exposing (class, classList, src, style, placeholder)
 import Html.Events exposing (..)
 import Dict exposing (Dict)
 import Http
-import Json.Decode
-import Json.Decode.Pipeline
 import Data exposing (Moment, User, Language, Talk, Message, Comment)
 import MockData exposing (mockMoment, mockPicture, mockUser, mockMoments, mockTalks)
+import Decoders exposing (decodeUser)
 
 
 viewProfile : User -> Html Msg
@@ -484,56 +483,6 @@ update msg model =
 getUser : Cmd Msg
 getUser =
     Http.get "/user" decodeUser |> Http.send GetUser
-
-
-decodeUser : Json.Decode.Decoder User
-decodeUser =
-    Json.Decode.Pipeline.decode User
-        |> Json.Decode.Pipeline.required "id" (Json.Decode.string)
-        |> Json.Decode.Pipeline.required "name" (Json.Decode.string)
-        |> Json.Decode.Pipeline.required "email" (Json.Decode.string)
-        |> Json.Decode.Pipeline.required "age" (Json.Decode.int)
-        |> Json.Decode.Pipeline.required "isMan" (Json.Decode.bool)
-        |> Json.Decode.Pipeline.required "lastLogin" (Json.Decode.int)
-        |> Json.Decode.Pipeline.required "location" (Json.Decode.string)
-        |> Json.Decode.Pipeline.required "localTime" (Json.Decode.string)
-        |> Json.Decode.Pipeline.required "learning" (decodeLanguage)
-        |> Json.Decode.Pipeline.required "native" (decodeLanguage)
-        |> Json.Decode.Pipeline.required "corrections" (Json.Decode.int)
-        |> Json.Decode.Pipeline.required "savedWords" (Json.Decode.int)
-        |> Json.Decode.Pipeline.required "audioLookups" (Json.Decode.int)
-        |> Json.Decode.Pipeline.required "translationLookups" (Json.Decode.int)
-        |> Json.Decode.Pipeline.required "bookmarks" (Json.Decode.int)
-        |> Json.Decode.Pipeline.required "intro" (Json.Decode.string)
-        |> Json.Decode.Pipeline.required "interests" (Json.Decode.list Json.Decode.string)
-        |> Json.Decode.Pipeline.required "picture" (Json.Decode.string)
-        |> Json.Decode.Pipeline.required "moments" (Json.Decode.list decodeMoment)
-
-
-decodeLanguage : Json.Decode.Decoder Language
-decodeLanguage =
-    Json.Decode.Pipeline.decode Language
-        |> Json.Decode.Pipeline.required "shortName" (Json.Decode.string)
-        |> Json.Decode.Pipeline.required "name" (Json.Decode.string)
-        |> Json.Decode.Pipeline.required "level" (Json.Decode.int)
-
-
-decodeMoment : Json.Decode.Decoder Moment
-decodeMoment =
-    Json.Decode.Pipeline.decode Moment
-        |> Json.Decode.Pipeline.required "userId" (Json.Decode.string)
-        |> Json.Decode.Pipeline.required "pictures" (Json.Decode.list Json.Decode.string)
-        |> Json.Decode.Pipeline.required "text" (Json.Decode.string)
-        |> Json.Decode.Pipeline.required "likes" (Json.Decode.int)
-        |> Json.Decode.Pipeline.required "comments" (Json.Decode.list decodeComment)
-
-
-decodeComment : Json.Decode.Decoder Comment
-decodeComment =
-    Json.Decode.Pipeline.decode Comment
-        |> Json.Decode.Pipeline.required "userId" (Json.Decode.string)
-        |> Json.Decode.Pipeline.required "name" (Json.Decode.string)
-        |> Json.Decode.Pipeline.required "text" (Json.Decode.string)
 
 
 type Route
