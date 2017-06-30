@@ -473,16 +473,18 @@ update msg model =
         ChangeRoute route ->
             ( { model | route = route }, Cmd.none )
 
-        GetUser (Ok user) ->
-            ( { model | user = user }, Cmd.none )
+        AddUser (Ok user) ->
+            ( { model | userById = Dict.insert user.id user model.userById }
+            , Cmd.none
+            )
 
-        GetUser (Err error) ->
-            ( model, getUser )
+        AddUser (Err error) ->
+            ( model, fetchUser )
 
 
-getUser : Cmd Msg
-getUser =
-    Http.get "/user" decodeUser |> Http.send GetUser
+fetchUser : Cmd Msg
+fetchUser =
+    Http.get "/user" decodeUser |> Http.send AddUser
 
 
 type Route
@@ -495,7 +497,7 @@ type Route
 
 type Msg
     = ChangeRoute Route
-    | GetUser (Result Http.Error User)
+    | AddUser (Result Http.Error User)
 
 
 type alias Model =
