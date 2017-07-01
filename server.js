@@ -10,4 +10,6 @@ app.get("/search", (req, res) =>
   res.status(200).json(Array.from({ length: 10 }, () => mockUser))
 );
 
+app.post("/login", (req, res) => res.status(200).json(mockUser));
+
 app.listen(3000, () => console.log("Listening on port 3000"));

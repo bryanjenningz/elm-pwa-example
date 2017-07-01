@@ -1,7 +1,7 @@
 module Main exposing (..)
 
 import Html exposing (..)
-import Html.Attributes exposing (class, classList, src, style, placeholder)
+import Html.Attributes exposing (class, classList, src, style, placeholder, type_)
 import Html.Events exposing (..)
 import Dict exposing (Dict)
 import Http
@@ -427,44 +427,87 @@ viewSearch users =
         ]
 
 
+viewLogin : Model -> Html Msg
+viewLogin model =
+    div [ class "pt-4 pb-4" ]
+        [ div [ class "row" ]
+            [ div [ class "col-2" ] [ h2 [ class "text-center" ] [ text "📧" ] ]
+            , div [ class "col-9" ]
+                [ input [ class "form-control", placeholder "Email" ] [] ]
+            ]
+        , div [ class "row" ]
+            [ div [ class "col-2" ] [ h2 [ class "text-center" ] [ text "🔒" ] ]
+            , div [ class "col-9" ]
+                [ input [ class "form-control", placeholder "Password" ] [] ]
+            ]
+        , div [ class "row" ]
+            [ div [ class "offset-2 col-10" ]
+                [ label []
+                    [ input
+                        [ type_ "checkbox"
+                        , placeholder "Password"
+                        ]
+                        []
+                    , span [ class "text-muted" ] [ text " Remember Password" ]
+                    ]
+                ]
+            ]
+        , div [ class "row" ]
+            [ div [ class "offset-2 col-6 text-muted" ] [ text "Forgot Password" ]
+            , div [ class "col-3" ]
+                [ button
+                    [ class "btn btn-primary btn-block"
+                    , onClick <| LoginUser "mockemail@gmail.com" "mockpassword"
+                    ]
+                    [ text "LOGIN" ]
+                ]
+            ]
+        ]
+
+
 view : Model -> Html Msg
 view model =
-    case model.route of
-        RouteTalks ->
-            div [] [ viewTalks model.talks, viewBottomMenu model.route ]
+    case model.user of
+        Nothing ->
+            viewLogin model
 
-        RouteTalk talk ->
-            div [] [ viewTalk talk, viewBottomMenu model.route ]
+        Just user ->
+            case model.route of
+                RouteTalks ->
+                    div [] [ viewTalks model.talks, viewBottomMenu model.route ]
 
-        RouteMoments ->
-            div []
-                [ div [ class "row" ]
-                    [ div [ class "col-12 col-md-6 offset-md-3 pt-2" ]
-                        (List.map
-                            (\moment ->
-                                viewMoment
-                                    (Dict.get moment.userId model.userById
-                                        |> Maybe.withDefault mockUser
+                RouteTalk talk ->
+                    div [] [ viewTalk talk, viewBottomMenu model.route ]
+
+                RouteMoments ->
+                    div []
+                        [ div [ class "row" ]
+                            [ div [ class "col-12 col-md-6 offset-md-3 pt-2" ]
+                                (List.map
+                                    (\moment ->
+                                        viewMoment
+                                            (Dict.get moment.userId model.userById
+                                                |> Maybe.withDefault mockUser
+                                            )
+                                            moment
                                     )
-                                    moment
-                            )
-                            model.moments
-                        )
-                    ]
-                , viewBottomMenu model.route
-                ]
+                                    model.moments
+                                )
+                            ]
+                        , viewBottomMenu model.route
+                        ]
 
-        RouteSearch ->
-            div []
-                [ viewSearch model.searchUsers
-                , viewBottomMenu model.route
-                ]
+                RouteSearch ->
+                    div []
+                        [ viewSearch model.searchUsers
+                        , viewBottomMenu model.route
+                        ]
 
-        RouteProfile user ->
-            div []
-                [ viewProfile user
-                , viewBottomMenu model.route
-                ]
+                RouteProfile user ->
+                    div []
+                        [ viewProfile user
+                        , viewBottomMenu model.route
+                        ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -473,6 +516,15 @@ update msg model =
         ChangeRoute route ->
             ( { model | route = route }, Cmd.none )
 
+        LoginUser email password ->
+            ( model, loginUser email password )
+
+        GetUser (Ok user) ->
+            ( { model | user = Just user }, Cmd.none )
+
+        GetUser (Err err) ->
+            ( { model | user = Just mockUser }, Cmd.none )
+
         AddUser (Ok user) ->
             ( { model | userById = Dict.insert user.id user model.userById }
             , Cmd.none
@@ -480,6 +532,19 @@ update msg model =
 
         AddUser (Err error) ->
             ( model, fetchUser )
+
+
+loginUser : String -> String -> Cmd Msg
+loginUser email password =
+    let
+        body =
+            Http.multipartBody
+                [ Http.stringPart "email" email
+                , Http.stringPart "password" password
+                ]
+    in
+        Http.post "/login" body decodeUser
+            |> Http.send GetUser
 
 
 fetchUser : Cmd Msg
@@ -497,12 +562,14 @@ type Route
 
 type Msg
     = ChangeRoute Route
+    | LoginUser String String
+    | GetUser (Result Http.Error User)
     | AddUser (Result Http.Error User)
 
 
 type alias Model =
     { route : Route
-    , user : User
+    , user : Maybe User
     , talks : List Talk
     , moments : List Moment
     , searchUsers : List User
@@ -516,7 +583,8 @@ main =
         { init =
             ( Model
                 RouteTalks
-                mockUser
+                --(Just mockUser)
+                Nothing
                 mockTalks
                 mockMoments
                 (List.repeat 10 mockUser)
