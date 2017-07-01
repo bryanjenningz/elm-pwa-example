@@ -429,8 +429,17 @@ viewSearch users =
 
 viewLogin : String -> String -> Bool -> Html Msg
 viewLogin email password rememberPassword =
-    div [ class "pt-4 pb-4" ]
-        [ div [ class "row" ]
+    div [ class "pb-4" ]
+        [ div [ class "card mb-4" ]
+            [ div [ class "card-block" ]
+                [ div [ class "row" ]
+                    [ div [ class "col-2 text-center" ] [ text "✖" ]
+                    , div [ class "col-7" ] [ text "Log In" ]
+                    , div [ class "col-1" ] [ text "SIGNUP" ]
+                    ]
+                ]
+            ]
+        , div [ class "row" ]
             [ div [ class "col-2" ] [ h2 [ class "text-center" ] [ text "📧" ] ]
             , div [ class "col-9" ]
                 [ input
