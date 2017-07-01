@@ -456,7 +456,8 @@ viewLogin email password rememberPassword =
                     , value email
                     , onInput
                         (\newEmail ->
-                            UpdateLoginPage newEmail password rememberPassword
+                            UpdateLoginState <|
+                                LoginPage newEmail password rememberPassword
                         )
                     ]
                     []
@@ -471,7 +472,8 @@ viewLogin email password rememberPassword =
                     , value password
                     , onInput
                         (\newPassword ->
-                            UpdateLoginPage email newPassword rememberPassword
+                            UpdateLoginState <|
+                                LoginPage email newPassword rememberPassword
                         )
                     ]
                     []
@@ -485,7 +487,8 @@ viewLogin email password rememberPassword =
                         , placeholder "Password"
                         , checked rememberPassword
                         , onClick <|
-                            UpdateLoginPage email password (not rememberPassword)
+                            UpdateLoginState <|
+                                LoginPage email password (not rememberPassword)
                         ]
                         []
                     , span [ class "text-muted" ] [ text " Remember Password" ]
@@ -576,11 +579,6 @@ update msg model =
         AddUser (Err error) ->
             ( model, fetchUser )
 
-        UpdateLoginPage email password rememberPassword ->
-            ( { model | user = LoginPage email password rememberPassword }
-            , Cmd.none
-            )
-
         UpdateLoginState userLoginState ->
             ( { model | user = userLoginState }, Cmd.none )
 
@@ -616,7 +614,6 @@ type Msg
     | LoginUser String String
     | GetUser (Result Http.Error User)
     | AddUser (Result Http.Error User)
-    | UpdateLoginPage String String Bool
     | UpdateLoginState UserLoginState
 
 
