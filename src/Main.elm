@@ -503,7 +503,11 @@ viewLogin email password rememberPassword =
                 ]
             ]
         , div [ class "row" ]
-            [ div [ class "offset-2 col-6 text-muted" ] [ text "Forgot Password" ]
+            [ div
+                [ class "offset-2 col-6 text-muted"
+                , onClick (UpdateLoginState (ForgotPasswordPage email))
+                ]
+                [ text "Forgot Password" ]
             , div [ class "col-3" ]
                 [ button
                     [ class "btn btn-primary btn-block"
@@ -603,6 +607,44 @@ styleFullPage =
         ]
 
 
+viewForgotPassword : String -> Html Msg
+viewForgotPassword email =
+    div [ class "pb-4" ]
+        [ div [ class "card mb-4" ]
+            [ div [ class "card-block" ]
+                [ div [ class "row" ]
+                    [ div
+                        [ class "col-2 text-center"
+                        , onClick <| UpdateLoginState LandingPage
+                        ]
+                        [ text "✖" ]
+                    , div [ class "col-7" ] [ text "Forgot Password" ]
+                    , div
+                        [ class "col-1"
+                        , onClick (UpdateLoginState (LoginPage "" "" True))
+                        ]
+                        [ text "SEND" ]
+                    ]
+                ]
+            ]
+        , div [ class "row" ]
+            [ div [ class "col-2" ] [ h2 [ class "text-center" ] [ text "📧" ] ]
+            , div [ class "col-9" ]
+                [ input
+                    [ class "form-control"
+                    , placeholder "Email"
+                    , value email
+                    , onInput
+                        (\newEmail ->
+                            UpdateLoginState (ForgotPasswordPage newEmail)
+                        )
+                    ]
+                    []
+                ]
+            ]
+        ]
+
+
 view : Model -> Html Msg
 view model =
     case model.user of
@@ -653,8 +695,8 @@ view model =
         LandingPage ->
             viewLandingPage
 
-        _ ->
-            div [] [ text "Finish implementing the rest of the views" ]
+        ForgotPasswordPage email ->
+            viewForgotPassword email
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
