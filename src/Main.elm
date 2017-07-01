@@ -441,7 +441,9 @@ viewLogin email password rememberPassword =
                     , div [ class "col-7" ] [ text "Log In" ]
                     , div
                         [ class "col-1"
-                        , onClick <| UpdateLoginState <| SignupPage "" ""
+                        , onClick <|
+                            UpdateLoginState <|
+                                SignupPage (SignupInfo "" "" "" "" True "")
                         ]
                         [ text "SIGNUP" ]
                     ]
@@ -508,6 +510,61 @@ viewLogin email password rememberPassword =
         ]
 
 
+viewSignup : SignupInfo -> Html Msg
+viewSignup signupInfo =
+    div [ class "pb-4" ]
+        [ div [ class "card mb-4" ]
+            [ div [ class "card-block" ]
+                [ div [ class "row" ]
+                    [ div
+                        [ class "col-2 text-center"
+                        , onClick <| UpdateLoginState LandingPage
+                        ]
+                        [ text "✖" ]
+                    , div [ class "col-7" ] [ text "Sign Up" ]
+                    , div
+                        [ class "col-1"
+                        , onClick <| UpdateLoginState <| LoginPage "" "" True
+                        ]
+                        [ text "NEXT" ]
+                    ]
+                ]
+            ]
+        , div [ class "row" ]
+            [ div [ class "col-2" ] [ h2 [ class "text-center" ] [ text "📧" ] ]
+            , div [ class "col-9" ]
+                [ input
+                    [ class "form-control"
+                    , placeholder "Email"
+                    , value signupInfo.email
+                    , onInput
+                        (\newEmail ->
+                            UpdateLoginState <|
+                                SignupPage { signupInfo | email = newEmail }
+                        )
+                    ]
+                    []
+                ]
+            ]
+        , div [ class "row" ]
+            [ div [ class "col-2" ] [ h2 [ class "text-center" ] [ text "🔒" ] ]
+            , div [ class "col-9" ]
+                [ input
+                    [ class "form-control"
+                    , placeholder "Password"
+                    , value signupInfo.password
+                    , onInput
+                        (\newPassword ->
+                            UpdateLoginState <|
+                                SignupPage { signupInfo | password = newPassword }
+                        )
+                    ]
+                    []
+                ]
+            ]
+        ]
+
+
 view : Model -> Html Msg
 view model =
     case model.user of
@@ -551,6 +608,9 @@ view model =
 
         LoginPage email password rememberPassword ->
             viewLogin email password rememberPassword
+
+        SignupPage signupInfo ->
+            viewSignup signupInfo
 
         _ ->
             div [] [ text "Finish implementing the rest of the views" ]
@@ -627,11 +687,21 @@ type alias Model =
     }
 
 
+type alias SignupInfo =
+    { email : String
+    , password : String
+    , name : String
+    , birthday : String
+    , isMan : Bool
+    , picture : String
+    }
+
+
 type UserLoginState
     = LandingPage
     | LoginPage String String Bool
     | ForgotPasswordPage String
-    | SignupPage String String
+    | SignupPage SignupInfo
     | LoggedIn User
 
 
