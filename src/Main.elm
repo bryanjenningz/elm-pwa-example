@@ -1,7 +1,7 @@
 module Main exposing (..)
 
 import Html exposing (..)
-import Html.Attributes exposing (class, classList, src, style, placeholder, type_)
+import Html.Attributes exposing (class, classList, src, style, placeholder, type_, checked, value)
 import Html.Events exposing (..)
 import Dict exposing (Dict)
 import Http
@@ -427,18 +427,38 @@ viewSearch users =
         ]
 
 
-viewLogin : Model -> Html Msg
-viewLogin model =
+viewLogin : String -> String -> Bool -> Html Msg
+viewLogin email password rememberPassword =
     div [ class "pt-4 pb-4" ]
         [ div [ class "row" ]
             [ div [ class "col-2" ] [ h2 [ class "text-center" ] [ text "📧" ] ]
             , div [ class "col-9" ]
-                [ input [ class "form-control", placeholder "Email" ] [] ]
+                [ input
+                    [ class "form-control"
+                    , placeholder "Email"
+                    , value email
+                    , onInput
+                        (\newEmail ->
+                            UpdateLoginPage newEmail password rememberPassword
+                        )
+                    ]
+                    []
+                ]
             ]
         , div [ class "row" ]
             [ div [ class "col-2" ] [ h2 [ class "text-center" ] [ text "🔒" ] ]
             , div [ class "col-9" ]
-                [ input [ class "form-control", placeholder "Password" ] [] ]
+                [ input
+                    [ class "form-control"
+                    , placeholder "Password"
+                    , value password
+                    , onInput
+                        (\newPassword ->
+                            UpdateLoginPage email newPassword rememberPassword
+                        )
+                    ]
+                    []
+                ]
             ]
         , div [ class "row" ]
             [ div [ class "offset-2 col-10" ]
@@ -446,6 +466,9 @@ viewLogin model =
                     [ input
                         [ type_ "checkbox"
                         , placeholder "Password"
+                        , checked rememberPassword
+                        , onClick <|
+                            UpdateLoginPage email password (not rememberPassword)
                         ]
                         []
                     , span [ class "text-muted" ] [ text " Remember Password" ]
@@ -506,8 +529,11 @@ view model =
                         , viewBottomMenu model.route
                         ]
 
+        LoginPage email password rememberPassword ->
+            viewLogin email password rememberPassword
+
         _ ->
-            viewLogin model
+            div [] [ text "Finish implementing the rest of the views" ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -532,6 +558,11 @@ update msg model =
 
         AddUser (Err error) ->
             ( model, fetchUser )
+
+        UpdateLoginPage email password rememberPassword ->
+            ( { model | user = LoginPage email password rememberPassword }
+            , Cmd.none
+            )
 
 
 loginUser : String -> String -> Cmd Msg
@@ -565,6 +596,7 @@ type Msg
     | LoginUser String String
     | GetUser (Result Http.Error User)
     | AddUser (Result Http.Error User)
+    | UpdateLoginPage String String Bool
 
 
 type alias Model =
@@ -591,7 +623,7 @@ main =
         { init =
             ( Model
                 RouteTalks
-                LandingPage
+                (LoginPage "" "" True)
                 mockTalks
                 mockMoments
                 (List.repeat 10 mockUser)
