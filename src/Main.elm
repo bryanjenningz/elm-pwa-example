@@ -433,9 +433,17 @@ viewLogin email password rememberPassword =
         [ div [ class "card mb-4" ]
             [ div [ class "card-block" ]
                 [ div [ class "row" ]
-                    [ div [ class "col-2 text-center" ] [ text "✖" ]
+                    [ div
+                        [ class "col-2 text-center"
+                        , onClick <| UpdateLoginState LandingPage
+                        ]
+                        [ text "✖" ]
                     , div [ class "col-7" ] [ text "Log In" ]
-                    , div [ class "col-1" ] [ text "SIGNUP" ]
+                    , div
+                        [ class "col-1"
+                        , onClick <| UpdateLoginState <| SignupPage "" ""
+                        ]
+                        [ text "SIGNUP" ]
                     ]
                 ]
             ]
@@ -573,6 +581,9 @@ update msg model =
             , Cmd.none
             )
 
+        UpdateLoginState userLoginState ->
+            ( { model | user = userLoginState }, Cmd.none )
+
 
 loginUser : String -> String -> Cmd Msg
 loginUser email password =
@@ -606,6 +617,7 @@ type Msg
     | GetUser (Result Http.Error User)
     | AddUser (Result Http.Error User)
     | UpdateLoginPage String String Bool
+    | UpdateLoginState UserLoginState
 
 
 type alias Model =
