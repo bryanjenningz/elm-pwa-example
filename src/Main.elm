@@ -427,6 +427,11 @@ viewSearch users =
         ]
 
 
+emptySignupInfo : SignupInfo
+emptySignupInfo =
+    SignupInfo "" "" "" "" True ""
+
+
 viewLogin : String -> String -> Bool -> Html Msg
 viewLogin email password rememberPassword =
     div [ class "pb-4" ]
@@ -443,7 +448,7 @@ viewLogin email password rememberPassword =
                         [ class "col-1"
                         , onClick <|
                             UpdateLoginState <|
-                                SignupPage (SignupInfo "" "" "" "" True "")
+                                SignupPage emptySignupInfo
                         ]
                         [ text "SIGNUP" ]
                     ]
@@ -565,6 +570,39 @@ viewSignup signupInfo =
         ]
 
 
+viewLandingPage : Html Msg
+viewLandingPage =
+    div [ class "text-center bg-primary", styleFullPage ]
+        [ h1 [ class "text-white" ] [ text "Talk App" ]
+        , h2 [ class "text-white" ] [ text "Talk to the World" ]
+        , div [ class "row" ]
+            [ div [ class "offset-1 col-10" ]
+                [ button
+                    [ class "btn btn-default form-control"
+                    , onClick <| UpdateLoginState <| SignupPage emptySignupInfo
+                    ]
+                    [ text "SIGN UP" ]
+                ]
+            ]
+        , div [ class "text-white" ]
+            [ text "Already have an account? "
+            , u [ onClick <| UpdateLoginState <| LoginPage "" "" True ]
+                [ text "Log In" ]
+            ]
+        ]
+
+
+styleFullPage : Attribute msg
+styleFullPage =
+    style
+        [ ( "position", "absolute" )
+        , ( "left", "0" )
+        , ( "right", "0" )
+        , ( "top", "0" )
+        , ( "bottom", "0" )
+        ]
+
+
 view : Model -> Html Msg
 view model =
     case model.user of
@@ -611,6 +649,9 @@ view model =
 
         SignupPage signupInfo ->
             viewSignup signupInfo
+
+        LandingPage ->
+            viewLandingPage
 
         _ ->
             div [] [ text "Finish implementing the rest of the views" ]
