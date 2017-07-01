@@ -468,10 +468,7 @@ viewLogin model =
 view : Model -> Html Msg
 view model =
     case model.user of
-        Nothing ->
-            viewLogin model
-
-        Just user ->
+        LoggedIn user ->
             case model.route of
                 RouteTalks ->
                     div [] [ viewTalks model.talks, viewBottomMenu model.route ]
@@ -509,6 +506,9 @@ view model =
                         , viewBottomMenu model.route
                         ]
 
+        _ ->
+            viewLogin model
+
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -520,10 +520,10 @@ update msg model =
             ( model, loginUser email password )
 
         GetUser (Ok user) ->
-            ( { model | user = Just user }, Cmd.none )
+            ( { model | user = LoggedIn user }, Cmd.none )
 
         GetUser (Err err) ->
-            ( { model | user = Just mockUser }, Cmd.none )
+            ( { model | user = LoggedIn mockUser }, Cmd.none )
 
         AddUser (Ok user) ->
             ( { model | userById = Dict.insert user.id user model.userById }
@@ -569,12 +569,20 @@ type Msg
 
 type alias Model =
     { route : Route
-    , user : Maybe User
+    , user : UserLoginState
     , talks : List Talk
     , moments : List Moment
     , searchUsers : List User
     , userById : Dict String User
     }
+
+
+type UserLoginState
+    = LandingPage
+    | LoginPage String String Bool
+    | ForgotPasswordPage String
+    | SignupPage String String
+    | LoggedIn User
 
 
 main : Program Never Model Msg
@@ -583,8 +591,7 @@ main =
         { init =
             ( Model
                 RouteTalks
-                --(Just mockUser)
-                Nothing
+                LandingPage
                 mockTalks
                 mockMoments
                 (List.repeat 10 mockUser)
