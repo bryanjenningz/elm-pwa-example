@@ -290,15 +290,22 @@ viewTalks talks =
         ]
 
 
-viewTalk : Talk -> Html msg
+viewTalk : Talk -> Html Msg
 viewTalk talk =
     div []
         [ div []
             (List.map
                 (\message ->
                     div [ class "row" ]
-                        [ div [ class "col-3" ] [ text message.text ]
-                        , div [ class "col-9" ] [ text message.user.name ]
+                        [ div [ class "col-3" ]
+                            [ img
+                                [ stylePicture
+                                , src message.user.picture
+                                , onClick (ChangeRoute (RouteProfile talk.user))
+                                ]
+                                []
+                            ]
+                        , div [ class "col-9" ] [ text message.text ]
                         ]
                 )
                 talk.messages
