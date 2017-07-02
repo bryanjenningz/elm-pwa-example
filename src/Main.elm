@@ -436,7 +436,12 @@ viewSearch users =
 
 emptySignupInfo : SignupInfo
 emptySignupInfo =
-    SignupInfo "" "" "" "" True ""
+    SignupInfo "" "" "" defaultDate True ""
+
+
+defaultDate : Date
+defaultDate =
+    Date 1996 1 1
 
 
 viewLogin : String -> String -> Bool -> Html Msg
@@ -526,6 +531,45 @@ viewLogin email password rememberPassword =
         ]
 
 
+monthToDays : Dict String Int
+monthToDays =
+    Dict.fromList
+        [ ( "Jan", 31 )
+        , ( "Feb", 29 )
+        , ( "Mar", 31 )
+        , ( "Apr", 30 )
+        , ( "May", 31 )
+        , ( "Jun", 30 )
+        , ( "Jul", 31 )
+        , ( "Aug", 31 )
+        , ( "Sept", 30 )
+        , ( "Oct", 31 )
+        , ( "Nov", 30 )
+        , ( "Dec", 31 )
+        ]
+
+
+months : List String
+months =
+    [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec" ]
+
+
+days : String -> List String
+days month =
+    let
+        dayCount =
+            monthToDays
+                |> Dict.get month
+                |> Maybe.withDefault 0
+    in
+        List.range 1 dayCount |> List.map toString
+
+
+years : List String
+years =
+    List.range 1926 2009 |> List.map toString
+
+
 viewSignup : SignupInfo -> Html Msg
 viewSignup signupInfo =
     div [ class "pb-4" ]
@@ -568,6 +612,7 @@ viewSignup signupInfo =
                 [ input
                     [ class "form-control"
                     , placeholder "Password"
+                    , type_ "password"
                     , value signupInfo.password
                     , onInput
                         (\newPassword ->
@@ -597,17 +642,20 @@ viewSignup signupInfo =
         , div [ class "row" ]
             [ div [ class "col-2" ] [ h2 [ class "text-center" ] [ text "🎂" ] ]
             , div [ class "col-9" ]
-                [ input
-                    [ class "form-control"
-                    , placeholder "Birthday"
-                    , value signupInfo.birthday
-                    , onInput
-                        (\newBirthday ->
-                            UpdateLoginState <|
-                                SignupPage { signupInfo | birthday = newBirthday }
-                        )
+                [ div [ class "row" ]
+                    [ div [ class "col-4 pr-0" ]
+                        [ select [ class "form-control" ]
+                            (List.map (\n -> option [] [ text n ]) months)
+                        ]
+                    , div [ class "col-4 px-0" ]
+                        [ select [ class "form-control" ]
+                            (List.map (\n -> option [] [ text n ]) (days "Jan"))
+                        ]
+                    , div [ class "col-4 pl-0" ]
+                        [ select [ class "form-control" ]
+                            (List.map (\n -> option [] [ text n ]) years)
+                        ]
                     ]
-                    []
                 ]
             ]
         , div [ class "row mt-4" ]
@@ -834,11 +882,18 @@ type alias Model =
     }
 
 
+type alias Date =
+    { year : Int
+    , month : Int
+    , day : Int
+    }
+
+
 type alias SignupInfo =
     { email : String
     , password : String
     , name : String
-    , birthday : String
+    , birthday : Date
     , isMan : Bool
     , picture : String
     }
