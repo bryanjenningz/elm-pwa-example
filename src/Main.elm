@@ -649,7 +649,10 @@ viewSignup signupInfo =
                         ]
                     , div [ class "col-4 px-0" ]
                         [ select [ class "form-control" ]
-                            (List.map (\n -> option [] [ text n ]) (days "Jan"))
+                            (List.map
+                                (\n -> option [] [ text n ])
+                                (days signupInfo.birthday.month)
+                            )
                         ]
                     , div [ class "col-4 pl-0" ]
                         [ select [ class "form-control" ]
