@@ -1,9 +1,11 @@
 module Main exposing (..)
 
 import Html exposing (..)
-import Html.Attributes exposing (class, classList, src, style, placeholder, type_, checked, value)
+import Html.Attributes exposing (class, classList, src, style, placeholder, type_, checked, value, selected)
 import Html.Events exposing (..)
 import Dict exposing (Dict)
+import Json.Decode as Json
+import Array exposing (Array)
 import Http
 import Data exposing (Moment, User, Language, Talk, Message, Comment)
 import MockData exposing (mockMoment, mockPicture, mockUser, mockMoments, mockTalks)
@@ -531,22 +533,10 @@ viewLogin email password rememberPassword =
         ]
 
 
-monthToDays : Dict String Int
+monthToDays : Array Int
 monthToDays =
-    Dict.fromList
-        [ ( "Jan", 31 )
-        , ( "Feb", 29 )
-        , ( "Mar", 31 )
-        , ( "Apr", 30 )
-        , ( "May", 31 )
-        , ( "Jun", 30 )
-        , ( "Jul", 31 )
-        , ( "Aug", 31 )
-        , ( "Sept", 30 )
-        , ( "Oct", 31 )
-        , ( "Nov", 30 )
-        , ( "Dec", 31 )
-        ]
+    Array.fromList
+        [ 0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ]
 
 
 months : List String
@@ -554,12 +544,12 @@ months =
     [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec" ]
 
 
-days : String -> List String
+days : Int -> List String
 days month =
     let
         dayCount =
             monthToDays
-                |> Dict.get month
+                |> Array.get month
                 |> Maybe.withDefault 0
     in
         List.range 1 dayCount |> List.map toString
@@ -641,25 +631,7 @@ viewSignup signupInfo =
             ]
         , div [ class "row" ]
             [ div [ class "col-2" ] [ h2 [ class "text-center" ] [ text "🎂" ] ]
-            , div [ class "col-9" ]
-                [ div [ class "row" ]
-                    [ div [ class "col-4 pr-0" ]
-                        [ select [ class "form-control" ]
-                            (List.map (\n -> option [] [ text n ]) months)
-                        ]
-                    , div [ class "col-4 px-0" ]
-                        [ select [ class "form-control" ]
-                            (List.map
-                                (\n -> option [] [ text n ])
-                                (days signupInfo.birthday.month)
-                            )
-                        ]
-                    , div [ class "col-4 pl-0" ]
-                        [ select [ class "form-control" ]
-                            (List.map (\n -> option [] [ text n ]) years)
-                        ]
-                    ]
-                ]
+            , div [ class "col-9" ] [ viewDate signupInfo ]
             ]
         , div [ class "row mt-4" ]
             [ div [ class "offset-2 col-9" ]
@@ -687,6 +659,87 @@ viewSignup signupInfo =
                 ]
             ]
         ]
+
+
+viewDate : SignupInfo -> Html Msg
+viewDate ({ birthday } as signupInfo) =
+    div [ class "row" ]
+        [ div [ class "col-4 pr-0" ]
+            [ select
+                [ class "form-control"
+                , onChange
+                    (\month ->
+                        String.toInt month
+                            |> Result.withDefault birthday.month
+                            |> (\selectedMonth ->
+                                    UpdateLoginState <|
+                                        SignupPage { signupInfo | birthday = { birthday | month = selectedMonth } }
+                               )
+                    )
+                ]
+                (List.indexedMap
+                    (\index month ->
+                        option
+                            [ value (toString (index + 1))
+                            , selected ((index + 1) == birthday.month)
+                            ]
+                            [ text month ]
+                    )
+                    months
+                )
+            ]
+        , div [ class "col-4 px-0" ]
+            [ select
+                [ class "form-control"
+                , onChange
+                    (\day ->
+                        String.toInt day
+                            |> Result.withDefault birthday.day
+                            |> (\selectedDay ->
+                                    UpdateLoginState <|
+                                        SignupPage { signupInfo | birthday = { birthday | day = selectedDay } }
+                               )
+                    )
+                ]
+                (List.indexedMap
+                    (\index day ->
+                        option
+                            [ value (toString (index + 1))
+                            , selected (birthday.day == (index + 1))
+                            ]
+                            [ text day ]
+                    )
+                    (days birthday.month)
+                )
+            ]
+        , div [ class "col-4 pl-0" ]
+            [ select
+                [ class "form-control"
+                , onChange
+                    (\year ->
+                        String.toInt year
+                            |> Result.withDefault birthday.year
+                            |> (\selectedYear ->
+                                    UpdateLoginState <|
+                                        SignupPage { signupInfo | birthday = { birthday | year = selectedYear } }
+                               )
+                    )
+                ]
+                (List.map
+                    (\year ->
+                        option
+                            [ value year, selected (year == toString birthday.year) ]
+                            [ text year ]
+                    )
+                    years
+                )
+            ]
+        ]
+
+
+onChange : (String -> Msg) -> Attribute Msg
+onChange message =
+    on "change" (Json.map message targetValue)
 
 
 viewLandingPage : Html Msg
