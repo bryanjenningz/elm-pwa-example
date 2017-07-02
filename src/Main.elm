@@ -578,6 +578,63 @@ viewSignup signupInfo =
                     []
                 ]
             ]
+        , div [ class "row" ]
+            [ div [ class "col-2" ] [ h2 [ class "text-center" ] [ text "👤" ] ]
+            , div [ class "col-9" ]
+                [ input
+                    [ class "form-control"
+                    , placeholder "Name"
+                    , value signupInfo.name
+                    , onInput
+                        (\newName ->
+                            UpdateLoginState <|
+                                SignupPage { signupInfo | name = newName }
+                        )
+                    ]
+                    []
+                ]
+            ]
+        , div [ class "row" ]
+            [ div [ class "col-2" ] [ h2 [ class "text-center" ] [ text "🎂" ] ]
+            , div [ class "col-9" ]
+                [ input
+                    [ class "form-control"
+                    , placeholder "Birthday"
+                    , value signupInfo.birthday
+                    , onInput
+                        (\newBirthday ->
+                            UpdateLoginState <|
+                                SignupPage { signupInfo | birthday = newBirthday }
+                        )
+                    ]
+                    []
+                ]
+            ]
+        , div [ class "row mt-4" ]
+            [ div [ class "offset-2 col-9" ]
+                [ h2
+                    [ class "d-inline"
+                    , classList [ ( "text-primary", signupInfo.isMan ) ]
+                    , onClick <|
+                        UpdateLoginState
+                            (SignupPage { signupInfo | isMan = True })
+                    ]
+                    [ text " 👤 ♂ " ]
+                , h2
+                    [ class "d-inline"
+                    , classList [ ( "text-primary", not signupInfo.isMan ) ]
+                    , onClick <|
+                        UpdateLoginState
+                            (SignupPage { signupInfo | isMan = False })
+                    ]
+                    [ text " 👤 ♀ " ]
+                , h1
+                    [ class "d-inline bg-faded p-4 float-right"
+                    , style [ ( "border-radius", "50%" ) ]
+                    ]
+                    [ text "📷" ]
+                ]
+            ]
         ]
 
 
@@ -801,7 +858,8 @@ main =
         { init =
             ( Model
                 RouteTalks
-                (LoginPage "" "" True)
+                --(LoginPage "" "" True)
+                (SignupPage emptySignupInfo)
                 mockTalks
                 mockMoments
                 (List.repeat 10 mockUser)
