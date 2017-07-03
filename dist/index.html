@@ -23,7 +23,7 @@
     });
 
     uploadPicture.addEventListener('change', function(e) {
-      var reader = FileReader();
+      var reader = new FileReader();
       reader.readAsDataURL(e.srcElement.files[0]);
       reader.onloadend = function() {
         app.ports.getPicture.send(reader.result);

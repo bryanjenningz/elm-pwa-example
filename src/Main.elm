@@ -10,6 +10,7 @@ import Http
 import Data exposing (Moment, User, Language, Talk, Message, Comment)
 import MockData exposing (mockMoment, mockPicture, mockUser, mockMoments, mockTalks)
 import Decoders exposing (decodeUser)
+import Ports exposing (uploadPicture, getPicture)
 
 
 viewProfile : User -> Html Msg
@@ -654,8 +655,13 @@ viewSignup signupInfo =
                 , h1
                     [ class "d-inline bg-faded p-4 float-right"
                     , style [ ( "border-radius", "50%" ) ]
+                    , onClick UploadPicture
                     ]
-                    [ text "📷" ]
+                    [ if signupInfo.picture == "" then
+                        text "📷"
+                      else
+                        img [ src signupInfo.picture ] []
+                    ]
                 ]
             ]
         ]
@@ -893,6 +899,17 @@ update msg model =
         UpdateLoginState userLoginState ->
             ( { model | user = userLoginState }, Cmd.none )
 
+        UploadPicture ->
+            ( model, uploadPicture () )
+
+        GetPicture picture ->
+            case model.user of
+                SignupPage signupInfo ->
+                    ( { model | user = SignupPage { signupInfo | picture = picture } }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
 
 loginUser : String -> String -> Cmd Msg
 loginUser email password =
@@ -926,6 +943,8 @@ type Msg
     | GetUser (Result Http.Error User)
     | AddUser (Result Http.Error User)
     | UpdateLoginState UserLoginState
+    | UploadPicture
+    | GetPicture String
 
 
 type alias Model =
@@ -979,5 +998,5 @@ main =
             )
         , view = view
         , update = update
-        , subscriptions = (\_ -> Sub.none)
+        , subscriptions = (\_ -> getPicture GetPicture)
         }
