@@ -636,31 +636,48 @@ viewSignup signupInfo =
             ]
         , div [ class "row mt-4" ]
             [ div [ class "offset-2 col-9" ]
-                [ h2
-                    [ class "d-inline"
-                    , classList [ ( "text-primary", signupInfo.isMan ) ]
-                    , onClick <|
-                        UpdateLoginState
-                            (SignupPage { signupInfo | isMan = True })
-                    ]
-                    [ text " 👤 ♂ " ]
-                , h2
-                    [ class "d-inline"
-                    , classList [ ( "text-primary", not signupInfo.isMan ) ]
-                    , onClick <|
-                        UpdateLoginState
-                            (SignupPage { signupInfo | isMan = False })
-                    ]
-                    [ text " 👤 ♀ " ]
-                , h1
-                    [ class "d-inline bg-faded p-4 float-right"
-                    , style [ ( "border-radius", "50%" ) ]
-                    , onClick UploadPicture
-                    ]
-                    [ if signupInfo.picture == "" then
-                        text "📷"
-                      else
-                        img [ src signupInfo.picture ] []
+                [ div
+                    [ class "row" ]
+                    [ div [ class "col-6" ]
+                        [ h2
+                            [ class "d-inline"
+                            , classList [ ( "text-primary", signupInfo.isMan ) ]
+                            , onClick <|
+                                UpdateLoginState
+                                    (SignupPage { signupInfo | isMan = True })
+                            ]
+                            [ text " 👤 ♂ " ]
+                        , h2
+                            [ class "d-inline"
+                            , classList [ ( "text-primary", not signupInfo.isMan ) ]
+                            , onClick <|
+                                UpdateLoginState
+                                    (SignupPage { signupInfo | isMan = False })
+                            ]
+                            [ text " 👤 ♀ " ]
+                        ]
+                    , div [ class "col-6" ]
+                        [ h1
+                            [ class "d-inline bg-faded float-right"
+                            , classList [ ( "p-4", signupInfo.picture == "" ) ]
+                            , style [ ( "border-radius", "50%" ) ]
+                            , onClick UploadPicture
+                            ]
+                            [ if signupInfo.picture == "" then
+                                text "📷"
+                              else
+                                img
+                                    [ style
+                                        -- 88px known by calling getComputedStyle(element).width
+                                        [ ( "width", "88px" )
+                                        , ( "height", "88px" )
+                                        , ( "border-radius", "50%" )
+                                        ]
+                                    , src signupInfo.picture
+                                    ]
+                                    []
+                            ]
+                        ]
                     ]
                 ]
             ]
