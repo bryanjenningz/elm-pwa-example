@@ -7,6 +7,7 @@ import Dict exposing (Dict)
 import Json.Decode as Json
 import Array exposing (Array)
 import Http
+import Regex
 import Data exposing (Moment, User, Language, Talk, Message, Comment)
 import MockData exposing (mockMoment, mockPicture, mockUser, mockMoments, mockTalks)
 import Decoders exposing (decodeUser)
@@ -463,7 +464,7 @@ viewLogin email password rememberPassword =
                         [ class "col-1"
                         , onClick <|
                             UpdateLoginState <|
-                                SignupPage emptySignupInfo
+                                SignupPage emptySignupInfo Nothing
                         ]
                         [ text "SIGNUP" ]
                     ]
@@ -561,10 +562,40 @@ years =
     List.range 1926 2009 |> List.map toString
 
 
-viewSignup : SignupInfo -> Html Msg
-viewSignup signupInfo =
+isValidEmail : String -> Bool
+isValidEmail email =
+    Regex.contains (Regex.regex """^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$""") email
+
+
+isValidPassword : String -> Bool
+isValidPassword password =
+    String.length password |> (\length -> 6 <= length && length <= 255)
+
+
+isValidName : String -> Bool
+isValidName name =
+    name |> String.trim |> String.length |> (\length -> 1 <= length && length <= 20)
+
+
+validateSignup : SignupInfo -> Msg
+validateSignup signupInfo =
+    if not <| isValidEmail signupInfo.email then
+        UpdateLoginState (SignupPage signupInfo (Just InvalidEmail))
+    else if not <| isValidPassword signupInfo.password then
+        UpdateLoginState (SignupPage signupInfo (Just InvalidPassword))
+    else if not <| isValidName signupInfo.name then
+        UpdateLoginState (SignupPage signupInfo (Just NoName))
+    else if signupInfo.picture == "" then
+        UpdateLoginState (SignupPage signupInfo (Just NoPicture))
+    else
+        Signup signupInfo
+
+
+viewSignup : SignupInfo -> Maybe SignupError -> Html Msg
+viewSignup signupInfo possibleError =
     div [ class "pb-4" ]
-        [ div [ class "card mb-4" ]
+        [ viewSignupError signupInfo possibleError
+        , div [ class "card mb-4" ]
             [ div [ class "card-block" ]
                 [ div [ class "row" ]
                     [ div
@@ -575,7 +606,7 @@ viewSignup signupInfo =
                     , div [ class "col-7" ] [ text "Sign Up" ]
                     , div
                         [ class "col-1"
-                        , onClick <| UpdateLoginState <| LoginPage "" "" True
+                        , onClick <| validateSignup signupInfo
                         ]
                         [ text "NEXT" ]
                     ]
@@ -591,7 +622,7 @@ viewSignup signupInfo =
                     , onInput
                         (\newEmail ->
                             UpdateLoginState <|
-                                SignupPage { signupInfo | email = newEmail }
+                                SignupPage { signupInfo | email = newEmail } possibleError
                         )
                     ]
                     []
@@ -608,7 +639,7 @@ viewSignup signupInfo =
                     , onInput
                         (\newPassword ->
                             UpdateLoginState <|
-                                SignupPage { signupInfo | password = newPassword }
+                                SignupPage { signupInfo | password = newPassword } possibleError
                         )
                     ]
                     []
@@ -624,7 +655,7 @@ viewSignup signupInfo =
                     , onInput
                         (\newName ->
                             UpdateLoginState <|
-                                SignupPage { signupInfo | name = newName }
+                                SignupPage { signupInfo | name = newName } possibleError
                         )
                     ]
                     []
@@ -632,7 +663,7 @@ viewSignup signupInfo =
             ]
         , div [ class "row" ]
             [ div [ class "col-2" ] [ h2 [ class "text-center" ] [ text "🎂" ] ]
-            , div [ class "col-9" ] [ viewDate signupInfo ]
+            , div [ class "col-9" ] [ viewDate signupInfo possibleError ]
             ]
         , div [ class "row mt-4" ]
             [ div [ class "offset-2 col-9" ]
@@ -644,7 +675,7 @@ viewSignup signupInfo =
                             , classList [ ( "text-primary", signupInfo.isMan ) ]
                             , onClick <|
                                 UpdateLoginState
-                                    (SignupPage { signupInfo | isMan = True })
+                                    (SignupPage { signupInfo | isMan = True } possibleError)
                             ]
                             [ text " 👤 ♂ " ]
                         , h2
@@ -652,7 +683,7 @@ viewSignup signupInfo =
                             , classList [ ( "text-primary", not signupInfo.isMan ) ]
                             , onClick <|
                                 UpdateLoginState
-                                    (SignupPage { signupInfo | isMan = False })
+                                    (SignupPage { signupInfo | isMan = False } possibleError)
                             ]
                             [ text " 👤 ♀ " ]
                         ]
@@ -684,8 +715,53 @@ viewSignup signupInfo =
         ]
 
 
-viewDate : SignupInfo -> Html Msg
-viewDate ({ birthday } as signupInfo) =
+viewSignupError : SignupInfo -> Maybe SignupError -> Html Msg
+viewSignupError signupInfo possibleError =
+    case possibleError of
+        Nothing ->
+            text ""
+
+        Just signupError ->
+            div
+                [ style
+                    [ ( "display", "flex" )
+                    , ( "justify-content", "center" )
+                    , ( "z-index", "1" )
+                    ]
+                ]
+                [ div
+                    [ style [ ( "flex", "1" ) ] ]
+                    [ case signupError of
+                        InvalidEmail ->
+                            text "Invalid Email Address"
+
+                        InvalidPassword ->
+                            text "Password needs to be at least 6 characters long"
+
+                        NoName ->
+                            text "Please input your username"
+
+                        NoBirthday ->
+                            text "Please enter your birthday"
+
+                        NoGender ->
+                            text "Please select your gender"
+
+                        NoPicture ->
+                            text "Profile picture is required"
+                    ]
+                , div []
+                    [ button
+                        [ class "btn btn-primary btn-block"
+                        , onClick (UpdateLoginState (SignupPage signupInfo Nothing))
+                        ]
+                        [ text "Ok" ]
+                    ]
+                ]
+
+
+viewDate : SignupInfo -> Maybe SignupError -> Html Msg
+viewDate ({ birthday } as signupInfo) possibleError =
     div [ class "row" ]
         [ div [ class "col-4 pr-0" ]
             [ select
@@ -696,7 +772,7 @@ viewDate ({ birthday } as signupInfo) =
                             |> Result.withDefault birthday.month
                             |> (\selectedMonth ->
                                     UpdateLoginState <|
-                                        SignupPage { signupInfo | birthday = { birthday | month = selectedMonth } }
+                                        SignupPage { signupInfo | birthday = { birthday | month = selectedMonth } } possibleError
                                )
                     )
                 ]
@@ -720,7 +796,7 @@ viewDate ({ birthday } as signupInfo) =
                             |> Result.withDefault birthday.day
                             |> (\selectedDay ->
                                     UpdateLoginState <|
-                                        SignupPage { signupInfo | birthday = { birthday | day = selectedDay } }
+                                        SignupPage { signupInfo | birthday = { birthday | day = selectedDay } } possibleError
                                )
                     )
                 ]
@@ -744,7 +820,7 @@ viewDate ({ birthday } as signupInfo) =
                             |> Result.withDefault birthday.year
                             |> (\selectedYear ->
                                     UpdateLoginState <|
-                                        SignupPage { signupInfo | birthday = { birthday | year = selectedYear } }
+                                        SignupPage { signupInfo | birthday = { birthday | year = selectedYear } } possibleError
                                )
                     )
                 ]
@@ -774,7 +850,7 @@ viewLandingPage =
             [ div [ class "offset-1 col-10" ]
                 [ button
                     [ class "btn btn-default form-control"
-                    , onClick <| UpdateLoginState <| SignupPage emptySignupInfo
+                    , onClick <| UpdateLoginState <| SignupPage emptySignupInfo Nothing
                     ]
                     [ text "SIGN UP" ]
                 ]
@@ -880,8 +956,8 @@ view model =
         LoginPage email password rememberPassword ->
             viewLogin email password rememberPassword
 
-        SignupPage signupInfo ->
-            viewSignup signupInfo
+        SignupPage signupInfo possibleError ->
+            viewSignup signupInfo possibleError
 
         LandingPage ->
             viewLandingPage
@@ -921,11 +997,35 @@ update msg model =
 
         GetPicture picture ->
             case model.user of
-                SignupPage signupInfo ->
-                    ( { model | user = SignupPage { signupInfo | picture = picture } }, Cmd.none )
+                SignupPage signupInfo possibleError ->
+                    ( { model | user = SignupPage { signupInfo | picture = picture } possibleError }, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
+
+        Signup signupInfo ->
+            let
+                dateString : Date -> String
+                dateString date =
+                    [ date.year, date.month, date.day ]
+                        |> List.map toString
+                        |> String.join "-"
+
+                body =
+                    Http.multipartBody
+                        [ Http.stringPart "email" signupInfo.email
+                        , Http.stringPart "password" signupInfo.password
+                        , Http.stringPart "name" signupInfo.name
+                        , Http.stringPart "birthday" (dateString signupInfo.birthday)
+                        , Http.stringPart "isMan" (toString signupInfo.isMan)
+                        , Http.stringPart "picture" signupInfo.picture
+                        ]
+
+                signupCmd =
+                    Http.post "/signup" body decodeUser
+                        |> Http.send GetUser
+            in
+                ( model, signupCmd )
 
 
 loginUser : String -> String -> Cmd Msg
@@ -962,6 +1062,7 @@ type Msg
     | UpdateLoginState UserLoginState
     | UploadPicture
     | GetPicture String
+    | Signup SignupInfo
 
 
 type alias Model =
@@ -991,11 +1092,20 @@ type alias SignupInfo =
     }
 
 
+type SignupError
+    = InvalidEmail
+    | InvalidPassword
+    | NoName
+    | NoBirthday
+    | NoGender
+    | NoPicture
+
+
 type UserLoginState
     = LandingPage
     | LoginPage String String Bool
     | ForgotPasswordPage String
-    | SignupPage SignupInfo
+    | SignupPage SignupInfo (Maybe SignupError)
     | LoggedIn User
 
 
@@ -1005,8 +1115,7 @@ main =
         { init =
             ( Model
                 RouteTalks
-                --(LoginPage "" "" True)
-                (SignupPage emptySignupInfo)
+                (SignupPage emptySignupInfo Nothing)
                 mockTalks
                 mockMoments
                 (List.repeat 10 mockUser)

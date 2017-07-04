@@ -11,5 +11,6 @@ app.get("/search", (req, res) =>
 );
 
 app.post("/login", (req, res) => res.status(200).json(mockUser));
+app.post("/signup", (req, res) => res.status(200).json(mockUser));
 
 app.listen(3000, () => console.log("Listening on port 3000"));
