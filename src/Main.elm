@@ -743,29 +743,50 @@ viewSignupError signupInfo possibleError =
                         NoPicture ->
                             text "Profile picture is required"
             in
-                div [ class "modal-content" ]
-                    [ div [ class "modal-header" ]
-                        [ h5 [ class "modal-title" ]
-                            [ text "Signup Error" ]
-                        , button
-                            [ class "close"
-                            , onClick <|
-                                UpdateLoginState <|
-                                    SignupPage signupInfo Nothing
+                div []
+                    [ div
+                        [ style
+                            [ ( "position", "absolute" )
+                            , ( "z-index", "2" )
+                            , ( "width", "100%" )
+                            , ( "top", "25%" )
                             ]
-                            [ text "×" ]
                         ]
-                    , div [ class "modal-body" ]
-                        [ p [] [ errorText ] ]
-                    , div [ class "modal-footer" ]
-                        [ button
-                            [ class "btn btn-primary btn-block"
-                            , onClick <|
-                                UpdateLoginState <|
-                                    SignupPage signupInfo Nothing
+                        [ div [ class "modal-content" ]
+                            [ div [ class "modal-header" ]
+                                [ h5 [ class "modal-title" ]
+                                    [ text "Signup Error" ]
+                                , button
+                                    [ class "close"
+                                    , onClick <|
+                                        UpdateLoginState <|
+                                            SignupPage signupInfo Nothing
+                                    ]
+                                    [ text "×" ]
+                                ]
+                            , div [ class "modal-body" ]
+                                [ p [] [ errorText ] ]
+                            , div [ class "modal-footer" ]
+                                [ button
+                                    [ class "btn btn-primary btn-block"
+                                    , onClick <|
+                                        UpdateLoginState <|
+                                            SignupPage signupInfo Nothing
+                                    ]
+                                    [ text "Close" ]
+                                ]
                             ]
-                            [ text "Close" ]
                         ]
+                    , div
+                        [ style
+                            [ ( "position", "absolute" )
+                            , ( "z-index", "1" )
+                            , ( "width", "100%" )
+                            , ( "height", "100%" )
+                            , ( "background", "rgba(0,0,0,0.5)" )
+                            ]
+                        ]
+                        []
                     ]
 
 
