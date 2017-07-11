@@ -1,7 +1,7 @@
 module Main exposing (..)
 
 import Html exposing (..)
-import Html.Attributes exposing (class, classList, src, style, placeholder, type_, checked, value, selected)
+import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Dict exposing (Dict)
 import Json.Decode as Json
@@ -722,16 +722,9 @@ viewSignupError signupInfo possibleError =
             text ""
 
         Just signupError ->
-            div
-                [ style
-                    [ ( "display", "flex" )
-                    , ( "justify-content", "center" )
-                    , ( "z-index", "1" )
-                    ]
-                ]
-                [ div
-                    [ style [ ( "flex", "1" ) ] ]
-                    [ case signupError of
+            let
+                errorText =
+                    case signupError of
                         InvalidEmail ->
                             text "Invalid Email Address"
 
@@ -749,15 +742,31 @@ viewSignupError signupInfo possibleError =
 
                         NoPicture ->
                             text "Profile picture is required"
-                    ]
-                , div []
-                    [ button
-                        [ class "btn btn-primary btn-block"
-                        , onClick (UpdateLoginState (SignupPage signupInfo Nothing))
+            in
+                div [ class "modal-content" ]
+                    [ div [ class "modal-header" ]
+                        [ h5 [ class "modal-title" ]
+                            [ text "Signup Error" ]
+                        , button
+                            [ class "close"
+                            , onClick <|
+                                UpdateLoginState <|
+                                    SignupPage signupInfo Nothing
+                            ]
+                            [ text "×" ]
                         ]
-                        [ text "Ok" ]
+                    , div [ class "modal-body" ]
+                        [ p [] [ errorText ] ]
+                    , div [ class "modal-footer" ]
+                        [ button
+                            [ class "btn btn-primary btn-block"
+                            , onClick <|
+                                UpdateLoginState <|
+                                    SignupPage signupInfo Nothing
+                            ]
+                            [ text "Close" ]
+                        ]
                     ]
-                ]
 
 
 viewDate : SignupInfo -> Maybe SignupError -> Html Msg
