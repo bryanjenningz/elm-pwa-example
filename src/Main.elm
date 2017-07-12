@@ -12,7 +12,7 @@ import Regex
 import Data exposing (Moment, User, UserToken, Language, Talk, Message, Comment)
 import MockData exposing (mockMoment, mockPicture, mockUser, mockMoments, mockTalks)
 import Decoders exposing (decodeUser, decodeUserToken)
-import Ports exposing (uploadPicture, getPicture)
+import Ports exposing (uploadPicture, getPicture, saveToken)
 
 
 viewProfile : User -> Html Msg
@@ -1015,7 +1015,7 @@ update msg model =
             ( model, loginUser email password )
 
         GetUserToken (Ok userToken) ->
-            ( { model | user = LoggedIn userToken }, Cmd.none )
+            ( { model | user = LoggedIn userToken }, saveToken userToken.token )
 
         GetUserToken (Err error) ->
             case model.user of
@@ -1178,10 +1178,14 @@ defaultDate =
     Date 1996 1 1
 
 
-main : Program Never Model Msg
-main =
-    program
-        { init =
+type alias Flags =
+    { maybeToken : Maybe String }
+
+
+init : Flags -> ( Model, Cmd Msg )
+init { maybeToken } =
+    case maybeToken of
+        Nothing ->
             ( Model
                 RouteTalks
                 (SignupPage mockSignupInfo Nothing)
@@ -1191,6 +1195,23 @@ main =
                 Dict.empty
             , Cmd.none
             )
+
+        Just token ->
+            ( Model
+                RouteTalks
+                (LoggedIn (UserToken mockUser token))
+                mockTalks
+                mockMoments
+                (List.repeat 10 mockUser)
+                Dict.empty
+            , Cmd.none
+            )
+
+
+main : Program Flags Model Msg
+main =
+    programWithFlags
+        { init = init
         , view = view
         , update = update
         , subscriptions = (\_ -> getPicture GetPicture)

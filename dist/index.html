@@ -16,10 +16,23 @@
   <script>
     var uploadPicture = document.querySelector('#upload-picture');
 
-    var app = Elm.Main.fullscreen();
+    function getToken() {
+      try {
+        var token = JSON.parse(localStorage.getItem("token"));
+        return typeof token === "string" ? token : null;
+      } catch (err) {
+        return null;
+      }
+    }
+
+    var app = Elm.Main.fullscreen({ maybeToken: getToken() });
 
     app.ports.uploadPicture.subscribe(function() {
       uploadPicture.click();
+    });
+
+    app.ports.saveToken.subscribe(function(token) {
+      localStorage.setItem("token", JSON.stringify(token));
     });
 
     uploadPicture.addEventListener('change', function(e) {
