@@ -12,7 +12,7 @@ import Regex
 import Data exposing (Moment, User, UserToken, Language, Talk, Message, Comment)
 import MockData exposing (mockMoment, mockPicture, mockUser, mockMoments, mockTalks)
 import Decoders exposing (decodeUser, decodeUserToken)
-import Ports exposing (uploadPicture, getPicture, saveToken)
+import Ports exposing (uploadPicture, getPicture, saveUserToken)
 
 
 viewProfile : User -> Html Msg
@@ -52,15 +52,15 @@ viewProfile user =
                 ]
             , div [ class "row mt-2" ]
                 [ div [ class "offset-4 col-2" ]
-                    [ div [] [ text user.native.shortName ]
-                    , viewLanguageLevel user.native.level
-                    , div [] [ text user.native.name ]
+                    [ div [] [ text user.nativeLanguage.shortName ]
+                    , viewLanguageLevel user.nativeLanguage.level
+                    , div [] [ text user.nativeLanguage.name ]
                     ]
                 , div [ class "col-1 pt-2" ] [ text ">" ]
                 , div [ class "col-2" ]
-                    [ div [] [ text user.learning.shortName ]
-                    , viewLanguageLevel user.learning.level
-                    , div [] [ text user.learning.name ]
+                    [ div [] [ text user.learningLanguage.shortName ]
+                    , viewLanguageLevel user.learningLanguage.level
+                    , div [] [ text user.learningLanguage.name ]
                     ]
                 ]
             , div [ class "row mt-2" ]
@@ -169,13 +169,13 @@ viewMoment user moment =
                 [ div [] [ text user.name ]
                 , div [ class "row" ]
                     [ div [ class "col-3" ]
-                        [ div [] [ text user.native.shortName ]
-                        , viewLanguageLevel user.native.level
+                        [ div [] [ text user.nativeLanguage.shortName ]
+                        , viewLanguageLevel user.nativeLanguage.level
                         ]
                     , div [ class "col-1 mr-4" ] [ text " > " ]
                     , div [ class "col-3" ]
-                        [ div [] [ text user.learning.shortName ]
-                        , viewLanguageLevel user.learning.level
+                        [ div [] [ text user.learningLanguage.shortName ]
+                        , viewLanguageLevel user.learningLanguage.level
                         ]
                     ]
                 ]
@@ -417,13 +417,13 @@ viewSearch users =
                             [ div [] [ text user.name ]
                             , div [ class "row" ]
                                 [ div [ class "col-3" ]
-                                    [ div [] [ text user.native.shortName ]
-                                    , viewLanguageLevel user.native.level
+                                    [ div [] [ text user.nativeLanguage.shortName ]
+                                    , viewLanguageLevel user.nativeLanguage.level
                                     ]
                                 , div [ class "col-1 mr-4" ] [ text " > " ]
                                 , div [ class "col-3" ]
-                                    [ div [] [ text user.learning.shortName ]
-                                    , viewLanguageLevel user.learning.level
+                                    [ div [] [ text user.learningLanguage.shortName ]
+                                    , viewLanguageLevel user.learningLanguage.level
                                     ]
                                 ]
                             ]
@@ -1015,7 +1015,7 @@ update msg model =
             ( model, loginUser email password )
 
         GetUserToken (Ok userToken) ->
-            ( { model | user = LoggedIn userToken }, saveToken userToken.token )
+            ( { model | user = LoggedIn userToken }, saveUserToken userToken )
 
         GetUserToken (Err error) ->
             case model.user of
@@ -1179,12 +1179,12 @@ defaultDate =
 
 
 type alias Flags =
-    { maybeToken : Maybe String }
+    { maybeUserToken : Maybe UserToken }
 
 
 init : Flags -> ( Model, Cmd Msg )
-init { maybeToken } =
-    case maybeToken of
+init { maybeUserToken } =
+    case maybeUserToken of
         Nothing ->
             ( Model
                 RouteTalks
@@ -1196,10 +1196,10 @@ init { maybeToken } =
             , Cmd.none
             )
 
-        Just token ->
+        Just userToken ->
             ( Model
                 RouteTalks
-                (LoggedIn (UserToken mockUser token))
+                (LoggedIn userToken)
                 mockTalks
                 mockMoments
                 (List.repeat 10 mockUser)

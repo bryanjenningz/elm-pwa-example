@@ -33,8 +33,8 @@ type alias User =
     , lastLogin : String
     , location : String
     , localTime : String
-    , learning : Language
-    , native : Language
+    , learningLanguage : Language
+    , nativeLanguage : Language
     , corrections : Int
     , savedWords : Int
     , audioLookups : Int
