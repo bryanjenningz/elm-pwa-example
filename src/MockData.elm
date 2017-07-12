@@ -1,6 +1,27 @@
 module MockData exposing (..)
 
-import Data exposing (Moment, Comment, User, Language, Talk, Message)
+import Data exposing (Moment, Comment, User, Language, Talk, Message, Date, SignupInfo)
+
+
+mockSignupInfo : SignupInfo
+mockSignupInfo =
+    { email = "a@example.com"
+    , password = "example"
+    , name = "Example Name"
+    , birthday = Date 1996 1 2
+    , isMan = True
+    , picture = ""
+    }
+
+
+emptySignupInfo : SignupInfo
+emptySignupInfo =
+    SignupInfo "" "" "" defaultDate True ""
+
+
+defaultDate : Date
+defaultDate =
+    Date 1996 1 1
 
 
 mockMoments : List Moment

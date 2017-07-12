@@ -1,5 +1,72 @@
 module Data exposing (..)
 
+import Dict exposing (Dict)
+import Http
+
+
+type Msg
+    = ChangeRoute Route
+    | LoginUser String String
+    | GetUserToken (Result Http.Error UserToken)
+    | AddUser (Result Http.Error User)
+    | UpdateLoginState UserLoginState
+    | UploadPicture
+    | GetPicture String
+    | Signup SignupInfo
+
+
+type Route
+    = RouteTalks
+    | RouteTalk Talk
+    | RouteMoments
+    | RouteSearch
+    | RouteProfile User
+
+
+type alias Model =
+    { route : Route
+    , user : UserLoginState
+    , talks : List Talk
+    , moments : List Moment
+    , searchUsers : List User
+    , userById : Dict String User
+    }
+
+
+type alias Date =
+    { year : Int
+    , month : Int
+    , day : Int
+    }
+
+
+type alias SignupInfo =
+    { email : String
+    , password : String
+    , name : String
+    , birthday : Date
+    , isMan : Bool
+    , picture : String
+    }
+
+
+type SignupError
+    = InvalidEmail
+    | InvalidPassword
+    | NoName
+    | NoBirthday
+    | NoGender
+    | NoPicture
+    | SignupHttpError Http.Error
+
+
+type UserLoginState
+    = LandingPage
+    | LoginPage String String Bool
+    | ForgotPasswordPage String
+    | SignupPage SignupInfo (Maybe SignupError)
+    | LoggedIn UserToken
+
 
 type alias Moment =
     { userId : String
