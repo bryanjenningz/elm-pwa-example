@@ -733,6 +733,24 @@ viewSignupError signupInfo possibleError =
 
                         NoPicture ->
                             text "Profile picture is required"
+
+                        SignupHttpError httpError ->
+                            case httpError of
+                                Http.BadUrl error ->
+                                    text ("The url was bad: " ++ error)
+
+                                Http.Timeout ->
+                                    text "The request timed out, maybe try again"
+
+                                Http.NetworkError ->
+                                    text "There was a network error, make sure you're connected to the internet and try again"
+
+                                Http.BadStatus response ->
+                                    -- text ("The server returned a bad status: " ++ toString response)
+                                    text "This email is already being used, please use a different email"
+
+                                Http.BadPayload decoderProblem response ->
+                                    text ("Bad payload: " ++ decoderProblem ++ ", Response: " ++ toString response)
             in
                 div []
                     [ div
@@ -999,8 +1017,14 @@ update msg model =
         GetUser (Ok user) ->
             ( { model | user = LoggedIn user }, Cmd.none )
 
-        GetUser (Err err) ->
-            ( { model | user = LoggedIn mockUser }, Cmd.none )
+        GetUser (Err error) ->
+            case model.user of
+                SignupPage signupInfo _ ->
+                    ( { model | user = SignupPage signupInfo (Just (SignupHttpError error)) }, Cmd.none )
+
+                _ ->
+                    -- Fail silently because the user switched pages so they probably don't care about the error
+                    ( model, Cmd.none )
 
         AddUser (Ok user) ->
             ( { model | userById = Dict.insert user.id user model.userById }
@@ -1054,12 +1078,13 @@ loginUser : String -> String -> Cmd Msg
 loginUser email password =
     let
         body =
-            Http.multipartBody
-                [ Http.stringPart "email" email
-                , Http.stringPart "password" password
-                ]
+            Http.jsonBody <|
+                Encode.object
+                    [ ( "email", Encode.string email )
+                    , ( "password", Encode.string password )
+                    ]
     in
-        Http.post "/login" body decodeUser
+        Http.post "/api/login" body decodeUser
             |> Http.send GetUser
 
 
@@ -1121,6 +1146,7 @@ type SignupError
     | NoBirthday
     | NoGender
     | NoPicture
+    | SignupHttpError Http.Error
 
 
 type UserLoginState

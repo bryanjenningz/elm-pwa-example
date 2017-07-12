@@ -81,10 +81,12 @@ const signup = async (req, res) => {
 
   try {
     await user.save();
-    return res.status(200).json({ token: createToken(user._id) });
+    return res.status(200).json({ user, token: createToken(user._id) });
   } catch (err) {
     console.log(err);
-    return res.status(404).json({ error: err });
+    return res.status(409).json({
+      message: "Email already in use, choose a different email"
+    });
   }
 };
 
