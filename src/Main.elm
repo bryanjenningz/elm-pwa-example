@@ -9,9 +9,9 @@ import Json.Encode as Encode
 import Array exposing (Array)
 import Http
 import Regex
-import Data exposing (Moment, User, Language, Talk, Message, Comment)
+import Data exposing (Moment, User, UserToken, Language, Talk, Message, Comment)
 import MockData exposing (mockMoment, mockPicture, mockUser, mockMoments, mockTalks)
-import Decoders exposing (decodeUser)
+import Decoders exposing (decodeUser, decodeUserToken)
 import Ports exposing (uploadPicture, getPicture)
 
 
@@ -34,7 +34,7 @@ viewProfile user =
                                 "♀"
                             )
                                 ++ " "
-                                ++ toString user.age
+                                ++ user.birthday
                         ]
                     ]
                 ]
@@ -1014,10 +1014,10 @@ update msg model =
         LoginUser email password ->
             ( model, loginUser email password )
 
-        GetUser (Ok user) ->
-            ( { model | user = LoggedIn user }, Cmd.none )
+        GetUserToken (Ok userToken) ->
+            ( { model | user = LoggedIn userToken }, Cmd.none )
 
-        GetUser (Err error) ->
+        GetUserToken (Err error) ->
             case model.user of
                 SignupPage signupInfo _ ->
                     ( { model | user = SignupPage signupInfo (Just (SignupHttpError error)) }, Cmd.none )
@@ -1068,8 +1068,8 @@ update msg model =
                             ]
 
                 signupCmd =
-                    Http.post "/api/signup" body decodeUser
-                        |> Http.send GetUser
+                    Http.post "/api/signup" body decodeUserToken
+                        |> Http.send GetUserToken
             in
                 ( model, signupCmd )
 
@@ -1084,8 +1084,8 @@ loginUser email password =
                     , ( "password", Encode.string password )
                     ]
     in
-        Http.post "/api/login" body decodeUser
-            |> Http.send GetUser
+        Http.post "/api/login" body decodeUserToken
+            |> Http.send GetUserToken
 
 
 fetchUser : Cmd Msg
@@ -1104,7 +1104,7 @@ type Route
 type Msg
     = ChangeRoute Route
     | LoginUser String String
-    | GetUser (Result Http.Error User)
+    | GetUserToken (Result Http.Error UserToken)
     | AddUser (Result Http.Error User)
     | UpdateLoginState UserLoginState
     | UploadPicture
@@ -1154,7 +1154,7 @@ type UserLoginState
     | LoginPage String String Bool
     | ForgotPasswordPage String
     | SignupPage SignupInfo (Maybe SignupError)
-    | LoggedIn User
+    | LoggedIn UserToken
 
 
 mockSignupInfo : SignupInfo

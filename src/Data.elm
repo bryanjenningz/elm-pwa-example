@@ -28,9 +28,9 @@ type alias User =
     { id : String
     , name : String
     , email : String
-    , age : Int
+    , birthday : String
     , isMan : Bool
-    , lastLogin : Int
+    , lastLogin : String
     , location : String
     , localTime : String
     , learning : Language
@@ -44,6 +44,12 @@ type alias User =
     , interests : List String
     , picture : String
     , moments : List Moment
+    }
+
+
+type alias UserToken =
+    { user : User
+    , token : String
     }
 
 

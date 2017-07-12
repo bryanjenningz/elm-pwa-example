@@ -2,18 +2,18 @@ module Decoders exposing (..)
 
 import Json.Decode
 import Json.Decode.Pipeline
-import Data exposing (Moment, User, Language, Comment)
+import Data exposing (Moment, User, Language, Comment, UserToken)
 
 
 decodeUser : Json.Decode.Decoder User
 decodeUser =
     Json.Decode.Pipeline.decode User
-        |> Json.Decode.Pipeline.required "id" (Json.Decode.string)
+        |> Json.Decode.Pipeline.required "_id" (Json.Decode.string)
         |> Json.Decode.Pipeline.required "name" (Json.Decode.string)
         |> Json.Decode.Pipeline.required "email" (Json.Decode.string)
-        |> Json.Decode.Pipeline.required "age" (Json.Decode.int)
+        |> Json.Decode.Pipeline.required "birthday" (Json.Decode.string)
         |> Json.Decode.Pipeline.required "isMan" (Json.Decode.bool)
-        |> Json.Decode.Pipeline.required "lastLogin" (Json.Decode.int)
+        |> Json.Decode.Pipeline.required "lastLogin" (Json.Decode.string)
         |> Json.Decode.Pipeline.required "location" (Json.Decode.string)
         |> Json.Decode.Pipeline.required "localTime" (Json.Decode.string)
         |> Json.Decode.Pipeline.required "learning" (decodeLanguage)
@@ -27,6 +27,13 @@ decodeUser =
         |> Json.Decode.Pipeline.required "interests" (Json.Decode.list Json.Decode.string)
         |> Json.Decode.Pipeline.required "picture" (Json.Decode.string)
         |> Json.Decode.Pipeline.required "moments" (Json.Decode.list decodeMoment)
+
+
+decodeUserToken : Json.Decode.Decoder UserToken
+decodeUserToken =
+    Json.Decode.map2 UserToken
+        (Json.Decode.field "user" decodeUser)
+        (Json.Decode.field "token" Json.Decode.string)
 
 
 decodeLanguage : Json.Decode.Decoder Language
