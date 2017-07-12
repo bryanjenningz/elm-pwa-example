@@ -4,7 +4,8 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Dict exposing (Dict)
-import Json.Decode as Json
+import Json.Decode as Decode
+import Json.Encode as Encode
 import Array exposing (Array)
 import Http
 import Regex
@@ -438,16 +439,6 @@ viewSearch users =
         ]
 
 
-emptySignupInfo : SignupInfo
-emptySignupInfo =
-    SignupInfo "" "" "" defaultDate True ""
-
-
-defaultDate : Date
-defaultDate =
-    Date 1996 1 1
-
-
 viewLogin : String -> String -> Bool -> Html Msg
 viewLogin email password rememberPassword =
     div [ class "pb-4" ]
@@ -574,7 +565,7 @@ isValidPassword password =
 
 isValidName : String -> Bool
 isValidName name =
-    name |> String.trim |> String.length |> (\length -> 1 <= length && length <= 20)
+    name |> String.trim |> String.length |> (\length -> 2 <= length && length <= 30)
 
 
 validateSignup : SignupInfo -> Msg
@@ -732,7 +723,7 @@ viewSignupError signupInfo possibleError =
                             text "Password needs to be at least 6 characters long"
 
                         NoName ->
-                            text "Please input your username"
+                            text "Your name can be from 2 to 30 characters long"
 
                         NoBirthday ->
                             text "Please enter your birthday"
@@ -868,7 +859,7 @@ viewDate ({ birthday } as signupInfo) possibleError =
 
 onChange : (String -> Msg) -> Attribute Msg
 onChange message =
-    on "change" (Json.map message targetValue)
+    on "change" (Decode.map message targetValue)
 
 
 viewLandingPage : Html Msg
@@ -1037,22 +1028,23 @@ update msg model =
             let
                 dateString : Date -> String
                 dateString date =
-                    [ date.year, date.month, date.day ]
+                    [ date.month, date.day, date.year ]
                         |> List.map toString
                         |> String.join "-"
 
                 body =
-                    Http.multipartBody
-                        [ Http.stringPart "email" signupInfo.email
-                        , Http.stringPart "password" signupInfo.password
-                        , Http.stringPart "name" signupInfo.name
-                        , Http.stringPart "birthday" (dateString signupInfo.birthday)
-                        , Http.stringPart "isMan" (toString signupInfo.isMan)
-                        , Http.stringPart "picture" signupInfo.picture
-                        ]
+                    Http.jsonBody <|
+                        Encode.object
+                            [ ( "email", Encode.string signupInfo.email )
+                            , ( "password", Encode.string signupInfo.password )
+                            , ( "name", Encode.string signupInfo.name )
+                            , ( "birthday", Encode.string (dateString signupInfo.birthday) )
+                            , ( "isMan", Encode.bool signupInfo.isMan )
+                            , ( "picture", Encode.string signupInfo.picture )
+                            ]
 
                 signupCmd =
-                    Http.post "/signup" body decodeUser
+                    Http.post "/api/signup" body decodeUser
                         |> Http.send GetUser
             in
                 ( model, signupCmd )
@@ -1139,13 +1131,34 @@ type UserLoginState
     | LoggedIn User
 
 
+mockSignupInfo : SignupInfo
+mockSignupInfo =
+    { email = "a@example.com"
+    , password = "example"
+    , name = "Example Name"
+    , birthday = Date 1996 1 2
+    , isMan = True
+    , picture = ""
+    }
+
+
+emptySignupInfo : SignupInfo
+emptySignupInfo =
+    SignupInfo "" "" "" defaultDate True ""
+
+
+defaultDate : Date
+defaultDate =
+    Date 1996 1 1
+
+
 main : Program Never Model Msg
 main =
     program
         { init =
             ( Model
                 RouteTalks
-                (SignupPage emptySignupInfo Nothing)
+                (SignupPage mockSignupInfo Nothing)
                 mockTalks
                 mockMoments
                 (List.repeat 10 mockUser)
