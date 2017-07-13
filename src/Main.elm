@@ -18,6 +18,7 @@ import Pages.Login exposing (viewLogin)
 import Pages.Profile exposing (viewProfile)
 import Pages.Moment exposing (viewMoment, viewLanguageLevel, stylePicture)
 import Pages.Talks exposing (viewTalks, viewTalk)
+import Pages.Search exposing (viewSearch)
 
 
 viewBottomMenu : Route -> Html Msg
@@ -95,44 +96,6 @@ styleBottomMenu =
         , ( "bottom", "0" )
         , ( "background", "white" )
         , ( "box-shadow", "0px 0px 10px 0px #888888" )
-        ]
-
-
-viewSearch : List User -> Html Msg
-viewSearch users =
-    div [ class "row" ]
-        [ div [ class "col-12 col-md-6 offset-md-3 pt-2" ]
-            (List.map
-                (\user ->
-                    div
-                        [ class "row mb-4"
-                        , onClick <| ChangeRoute <| RouteProfile user
-                        ]
-                        [ div [ class "col-2" ]
-                            [ img [ stylePicture, src mockPicture ] [] ]
-                        , div [ class "col-8" ]
-                            [ div [] [ text user.name ]
-                            , div [ class "row" ]
-                                [ div [ class "col-3" ]
-                                    [ div [] [ text user.nativeLanguage.shortName ]
-                                    , viewLanguageLevel user.nativeLanguage.level
-                                    ]
-                                , div [ class "col-1 mr-4" ] [ text " > " ]
-                                , div [ class "col-3" ]
-                                    [ div [] [ text user.learningLanguage.shortName ]
-                                    , viewLanguageLevel user.learningLanguage.level
-                                    ]
-                                ]
-                            ]
-                        , div [ class "col-2" ]
-                            [ div []
-                                [ text (toString user.lastLogin ++ "d") ]
-                            , div [] [ text "☰" ]
-                            ]
-                        ]
-                )
-                users
-            )
         ]
 
 
